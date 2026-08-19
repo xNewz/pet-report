@@ -3,7 +3,7 @@ import { Report } from "@/lib/types";
 import FullReportClient from "./FullReportClient";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 // Server-side fetch for SEO/OG Tags using Firestore REST API
@@ -55,7 +55,8 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const report = await getReport(params.id);
+  const resolvedParams = await params;
+  const report = await getReport(resolvedParams.id);
 
   if (!report) {
     return {
@@ -85,12 +86,13 @@ export async function generateMetadata(
 }
 
 export default async function ReportPage({ params }: Props) {
-  const initialReport = await getReport(params.id);
+  const resolvedParams = await params;
+  const initialReport = await getReport(resolvedParams.id);
   
   return (
     <div className="min-h-screen bg-muted/10 py-6 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto">
-        <FullReportClient reportId={params.id} initialReport={initialReport} />
+        <FullReportClient reportId={resolvedParams.id} initialReport={initialReport} />
       </div>
     </div>
   );
