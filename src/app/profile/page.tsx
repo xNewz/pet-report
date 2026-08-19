@@ -41,7 +41,7 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-12 space-y-8">
       {/* Profile Header */}
-      <Card className="border-border overflow-hidden">
+      <Card className="border-border overflow-hidden p-0">
         <div className="h-32 bg-primary/10 w-full" />
         <CardContent className="relative px-6 pb-6 pt-0 sm:px-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6 -mt-12 sm:-mt-16">

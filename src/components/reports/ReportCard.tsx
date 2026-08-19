@@ -56,7 +56,7 @@ export default function ReportCard({
       <Card
         className={`
           overflow-hidden h-full rounded-2xl bg-card border-border/60
-          shadow-sm group-hover:shadow-md transition-all duration-300
+          shadow-sm group-hover:shadow-md transition-all duration-300 p-0
         `}
       >
         {/* Image */}
