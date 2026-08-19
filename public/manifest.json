@@ -1,0 +1,24 @@
+{
+  "name": "Community Stray Pet Watch",
+  "short_name": "Pet Watch",
+  "description": "แพลตฟอร์มแจ้งจุดสัตว์จรจัดป่วย/ดุร้าย และหาบ้าน",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
