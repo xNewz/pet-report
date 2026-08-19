@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { database } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import {
-  ref,
-  onValue,
-  push,
-  set,
-  update,
-  serverTimestamp,
-} from "firebase/database";
+  collection,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import {
   Report,
   ReportFormData,
@@ -30,23 +30,18 @@ export function useReports() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const reportsRef = ref(database, "reports");
+    const reportsRef = collection(db, "reports");
 
-    const unsubscribe = onValue(
+    const unsubscribe = onSnapshot(
       reportsRef,
       (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const reportsList: Report[] = Object.keys(data).map((key) => ({
-            ...data[key],
-            id: key,
-          }));
-          // Sort by newest first
-          reportsList.sort((a, b) => b.createdAt - a.createdAt);
-          setReports(reportsList);
-        } else {
-          setReports([]);
-        }
+        const reportsList: Report[] = snapshot.docs.map((doc) => ({
+          ...(doc.data() as Omit<Report, "id">),
+          id: doc.id,
+        }));
+        // Sort by newest first
+        reportsList.sort((a, b) => b.createdAt - a.createdAt);
+        setReports(reportsList);
         setLoading(false);
       },
       (err) => {
@@ -126,8 +121,7 @@ export function useStats(reports: Report[]): Stats {
  * Create a new report in Firebase.
  */
 export async function createReport(data: ReportFormData): Promise<string> {
-  const reportsRef = ref(database, "reports");
-  const newRef = push(reportsRef);
+  const reportsRef = collection(db, "reports");
   const now = Date.now();
 
   const report: Omit<Report, "id"> = {
@@ -149,8 +143,8 @@ export async function createReport(data: ReportFormData): Promise<string> {
     updatedAt: now,
   };
 
-  await set(newRef, report);
-  return newRef.key!;
+  const docRef = await addDoc(reportsRef, report);
+  return docRef.id;
 }
 
 /**
@@ -160,9 +154,17 @@ export async function updateReportStatus(
   reportId: string,
   status: ReportStatus
 ): Promise<void> {
-  const reportRef = ref(database, `reports/${reportId}`);
-  await update(reportRef, {
+  const reportRef = doc(db, "reports", reportId);
+  await updateDoc(reportRef, {
     status,
     updatedAt: Date.now(),
   });
+}
+
+/**
+ * Delete a report.
+ */
+export async function deleteReport(reportId: string): Promise<void> {
+  const reportRef = doc(db, "reports", reportId);
+  await deleteDoc(reportRef);
 }

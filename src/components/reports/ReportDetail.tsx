@@ -20,11 +20,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { updateReportStatus } from "@/hooks/useReports";
+import { updateReportStatus, deleteReport } from "@/hooks/useReports";
 import { useState } from "react";
-import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone } from "lucide-react";
+import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone, Trash2 } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ReportDetailProps {
   report: Report | null;
@@ -35,13 +36,31 @@ interface ReportDetailProps {
 
 export default function ReportDetail({
   report,
+  userLocation,
   open,
   onClose,
-  userLocation,
 }: ReportDetailProps) {
+  const { user } = useAuth();
   const [updating, setUpdating] = useState(false);
 
   if (!report) return null;
+
+  const handleDelete = async () => {
+    if (!report || !user || user.uid !== report.reporterId) return;
+    
+    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้? (ลบแล้วไม่สามารถกู้คืนได้)")) {
+      setUpdating(true);
+      try {
+        await deleteReport(report.id);
+        onClose();
+      } catch (err) {
+        console.error("Failed to delete report:", err);
+        alert("เกิดข้อผิดพลาดในการลบโพสต์");
+      } finally {
+        setUpdating(false);
+      }
+    }
+  };
 
   const isEmergency = report.type === "emergency";
   const distance = userLocation
@@ -213,27 +232,40 @@ export default function ReportDetail({
               </Button>
             </a>
 
-            {report.status === "active" && (
+            {user && user.uid === report.reporterId && (
               <>
-                {isEmergency ? (
-                  <Button
-                    variant="outline"
-                    className="flex-1 gap-2"
-                    onClick={() => handleStatusUpdate("resolved")}
-                    disabled={updating}
-                  >
-                    <CheckCircle2 className="w-4 h-4" /> ช่วยเหลือแล้ว
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="flex-1 gap-2"
-                    onClick={() => handleStatusUpdate("adopted")}
-                    disabled={updating}
-                  >
-                    <Home className="w-4 h-4" /> หาบ้านได้แล้ว
-                  </Button>
+                {report.status === "active" && (
+                  <>
+                    {isEmergency ? (
+                      <Button
+                        variant="outline"
+                        className="flex-1 gap-2"
+                        onClick={() => handleStatusUpdate("resolved")}
+                        disabled={updating}
+                      >
+                        <CheckCircle2 className="w-4 h-4" /> ช่วยเหลือแล้ว
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="flex-1 gap-2"
+                        onClick={() => handleStatusUpdate("adopted")}
+                        disabled={updating}
+                      >
+                        <Home className="w-4 h-4" /> หาบ้านได้แล้ว
+                      </Button>
+                    )}
+                  </>
                 )}
+                
+                <Button
+                  variant="destructive"
+                  className="flex-none gap-2"
+                  onClick={handleDelete}
+                  disabled={updating}
+                >
+                  <Trash2 className="w-4 h-4" /> ลบ
+                </Button>
               </>
             )}
           </div>
