@@ -55,8 +55,8 @@ export default function ReportCard({
     >
       <Card
         className={`
-          overflow-hidden h-full rounded-2xl
-          ${isEmergency ? "bg-destructive/10" : "bg-primary/10"}
+          overflow-hidden h-full rounded-2xl bg-card border-border/60
+          shadow-sm group-hover:shadow-md transition-all duration-300
         `}
       >
         {/* Image */}
@@ -95,12 +95,8 @@ export default function ReportCard({
             </div>
           </div>
         ) : (
-          <div
-            className={`h-32 flex items-center justify-center ${
-              isEmergency
-                ? "bg-destructive/5 text-destructive"
-                : "bg-primary/5 text-primary"
-            }`}
+            <div
+            className={`h-36 flex items-center justify-center bg-muted/30`}
           >
             {report.animalType === "dog" ? (
               <CuteDogIcon className="w-12 h-12 opacity-50" />
@@ -137,7 +133,7 @@ export default function ReportCard({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-border">
+          <div className="flex items-center justify-between pt-3 border-t border-border/50">
             <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" /> {timeAgo}

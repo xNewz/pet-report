@@ -36,6 +36,8 @@ export interface Report {
   status: ReportStatus;
   severity: Severity;
   reporterName: string;
+  reporterId?: string;
+  reporterAvatar?: string;
   contactInfo: string;
   createdAt: number;
   updatedAt: number;
@@ -52,6 +54,8 @@ export interface ReportFormData {
   address: string;
   severity: Severity;
   reporterName: string;
+  reporterId?: string;
+  reporterAvatar?: string;
   contactInfo: string;
 }
 

@@ -142,6 +142,8 @@ export async function createReport(data: ReportFormData): Promise<string> {
     status: data.type === "adoption" ? "active" : "active",
     severity: data.severity,
     reporterName: data.reporterName,
+    reporterId: data.reporterId,
+    reporterAvatar: data.reporterAvatar,
     contactInfo: data.contactInfo,
     createdAt: now,
     updatedAt: now,

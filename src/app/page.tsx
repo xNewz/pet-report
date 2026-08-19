@@ -31,13 +31,14 @@ export default function HomePage() {
   return (
     <div className="space-y-6 pb-12">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-muted/50 border-b">
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-12 pb-8">
-          <div className="text-center space-y-4 animate-slide-up">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-primary">
-              Community Stray Pet Watch
+      <section className="relative overflow-hidden bg-background border-b border-border/40">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-16 pb-12 sm:pt-20 sm:pb-16">
+          <div className="text-center space-y-6 animate-slide-up">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground">
+              Community <span className="text-primary">Stray Pet Watch</span>
             </h1>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               แพลตฟอร์มแจ้งจุดสัตว์จรจัดป่วย/ดุร้าย และหาบ้าน
               <br className="hidden sm:block" />
               เพื่อชุมชนที่ปลอดภัยสำหรับทุกชีวิต

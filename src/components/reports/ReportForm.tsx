@@ -20,8 +20,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import MapView from "@/components/map/MapView";
-import { CheckCircle2, AlertTriangle, Home, MapPin, Camera, ClipboardList, PawPrint, Dog, Cat, Activity, Thermometer, ImageIcon, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Home, MapPin, Camera, ClipboardList, PawPrint, Activity, Thermometer, ImageIcon, Loader2 } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ReportFormProps {
   onSuccess?: () => void;
@@ -35,6 +36,7 @@ const STEPS = [
 ];
 
 export default function ReportForm({ onSuccess }: ReportFormProps) {
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -75,7 +77,13 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await createReport(formData);
+      const payload = {
+        ...formData,
+        reporterId: user?.uid,
+        reporterAvatar: user?.photoURL || undefined,
+        reporterName: formData.reporterName || user?.displayName || "ผู้ไม่ประสงค์ออกนาม",
+      };
+      await createReport(payload);
       setSuccess(true);
       setTimeout(() => {
         onSuccess?.();

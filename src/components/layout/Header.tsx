@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { PawPrint, Menu, AlertTriangle } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 const navLinks = [
   { href: "/", label: "หน้าหลัก", icon: "🗺️" },
@@ -16,10 +19,12 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { user, loginWithGoogle, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background border-b">
+    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -47,7 +52,7 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Desktop CTA */}
+        {/* Desktop CTA & Auth */}
         <div className="hidden md:flex items-center gap-3">
           <Link href="/report">
             <Button size="sm" variant="destructive" className="gap-2">
@@ -55,6 +60,37 @@ export default function Header() {
               แจ้งเหตุฉุกเฉิน
             </Button>
           </Link>
+          
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="relative h-8 w-8 rounded-full border border-border outline-none ring-primary focus-visible:ring-2 hover:opacity-80 transition-opacity">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
+                  <AvatarFallback>{user.displayName?.charAt(0) || "U"}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    <p className="font-medium">{user.displayName}</p>
+                    <p className="w-[200px] truncate text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/profile")}>
+                  โปรไฟล์ของฉัน
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={logout}>
+                  ออกจากระบบ
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="outline" size="sm" onClick={loginWithGoogle}>
+              เข้าสู่ระบบ
+            </Button>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -93,12 +129,34 @@ export default function Header() {
               })}
             </nav>
             <Separator className="bg-white/5 my-6" />
-            <Link href="/report" onClick={() => setOpen(false)}>
-              <Button variant="destructive" className="w-full shadow-sm gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                แจ้งเหตุฉุกเฉิน
-              </Button>
-            </Link>
+            <div className="flex flex-col gap-3">
+              <Link href="/report" onClick={() => setOpen(false)}>
+                <Button variant="destructive" className="w-full shadow-sm gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  แจ้งเหตุฉุกเฉิน
+                </Button>
+              </Link>
+              {user ? (
+                <>
+                  <Link href="/profile" onClick={() => setOpen(false)}>
+                    <Button variant="outline" className="w-full gap-2">
+                      <Avatar className="h-5 w-5">
+                        <AvatarImage src={user.photoURL || undefined} />
+                        <AvatarFallback>{user.displayName?.charAt(0) || "U"}</AvatarFallback>
+                      </Avatar>
+                      โปรไฟล์ของฉัน
+                    </Button>
+                  </Link>
+                  <Button variant="ghost" className="w-full text-destructive hover:text-destructive" onClick={() => { logout(); setOpen(false); }}>
+                    ออกจากระบบ
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" className="w-full" onClick={() => { loginWithGoogle(); setOpen(false); }}>
+                  เข้าสู่ระบบ
+                </Button>
+              )}
+            </div>
           </SheetContent>
         </Sheet>
       </div>
