@@ -1,0 +1,540 @@
+"use client";
+
+import { useState, useRef } from "react";
+import {
+  ReportFormData,
+  ReportType,
+  ReportCategory,
+  AnimalType,
+  Severity,
+  Location,
+  ANIMAL_TYPE_LABELS,
+  CATEGORY_LABELS,
+  SEVERITY_LABELS,
+} from "@/lib/types";
+import { createReport } from "@/hooks/useReports";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import MapView from "@/components/map/MapView";
+import { CheckCircle2, AlertTriangle, Home, MapPin, Camera, ClipboardList, PawPrint, Dog, Cat, Activity, Thermometer, ImageIcon, Loader2 } from "lucide-react";
+import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
+
+interface ReportFormProps {
+  onSuccess?: () => void;
+}
+
+const STEPS = [
+  { title: "ประเภทการแจ้ง", icon: <ClipboardList className="w-4 h-4" /> },
+  { title: "รายละเอียดสัตว์", icon: <PawPrint className="w-4 h-4" /> },
+  { title: "ปักหมุดตำแหน่ง", icon: <MapPin className="w-4 h-4" /> },
+  { title: "รูปภาพ & ข้อมูลติดต่อ", icon: <Camera className="w-4 h-4" /> },
+];
+
+export default function ReportForm({ onSuccess }: ReportFormProps) {
+  const [step, setStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [formData, setFormData] = useState<ReportFormData>({
+    type: "emergency",
+    category: "injured",
+    animalType: "dog",
+    title: "",
+    description: "",
+    imageBase64: "",
+    location: null,
+    address: "",
+    severity: "medium",
+    reporterName: "",
+    contactInfo: "",
+  });
+
+  const updateField = <K extends keyof ReportFormData>(
+    key: K,
+    value: ReportFormData[K]
+  ) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateField("imageBase64", reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      await createReport(formData);
+      setSuccess(true);
+      setTimeout(() => {
+        onSuccess?.();
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to create report:", err);
+      alert("เกิดข้อผิดพลาดในการส่งรายงาน กรุณาลองใหม่");
+    }
+    setSubmitting(false);
+  };
+
+  const canNext = () => {
+    switch (step) {
+      case 0:
+        return !!formData.type;
+      case 1:
+        return !!formData.title && !!formData.description;
+      case 2:
+        return !!formData.location;
+      case 3:
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 animate-scale-in">
+        <CheckCircle2 className="w-16 h-16 text-primary mb-6 animate-float" />
+        <h2 className="text-2xl font-bold mb-2 text-primary">
+          ส่งรายงานสำเร็จ!
+        </h2>
+        <p className="text-muted-foreground text-center max-w-sm">
+          ขอบคุณที่ช่วยแจ้งข้อมูล รายงานของคุณจะปรากฏบนแผนที่ทันที
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Progress bar */}
+      <div className="flex items-center gap-2">
+        {STEPS.map((s, i) => (
+          <div key={i} className="flex-1 flex items-center gap-2">
+            <div
+              className={`
+                w-8 h-8 rounded-full flex items-center justify-center text-sm
+                transition-all duration-500
+                ${
+                  i === step
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110"
+                    : i < step
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-white/5 text-muted-foreground"
+                }
+              `}
+            >
+              {i < step ? <CheckCircle2 className="w-4 h-4" /> : s.icon}
+            </div>
+            {i < STEPS.length - 1 && (
+              <div
+                className={`flex-1 h-0.5 rounded-full transition-all duration-500 ${
+                  i < step ? "bg-green-500/30" : "bg-white/5"
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Step title */}
+      <div className="animate-fade-in">
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          {STEPS[step].icon} {STEPS[step].title}
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          ขั้นตอนที่ {step + 1} จาก {STEPS.length}
+        </p>
+      </div>
+
+      {/* Step content */}
+      <Card className="animate-scale-in" key={step}>
+        <CardContent className="p-6">
+        {step === 0 && (
+          <div className="space-y-6">
+            {/* Report Type */}
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold">ประเภทการแจ้ง</Label>
+              <ToggleGroup
+                value={[formData.type]}
+                onValueChange={(val: any) => {
+                  const v = Array.isArray(val) ? val[0] : val;
+                  if (!v) return;
+                  if (v === "emergency") {
+                    updateField("type", "emergency");
+                    updateField("category", "injured");
+                  } else {
+                    updateField("type", "adoption");
+                    updateField("category", "adoption");
+                    updateField("severity", "low");
+                  }
+                }}
+                className="grid grid-cols-2 gap-3"
+              >
+                <ToggleGroupItem
+                  value="emergency"
+                  className={`
+                    h-auto p-4 flex-col items-start rounded-xl border-2 transition-all duration-300 text-left
+                    ${
+                      formData.type === "emergency"
+                        ? "border-destructive bg-destructive/10 data-[state=on]:bg-destructive/10 data-[state=on]:text-destructive"
+                        : "border-border hover:bg-muted"
+                    }
+                  `}
+                >
+                  <AlertTriangle className="w-8 h-8 mb-2" />
+                  <h3 className="font-bold text-sm w-full text-left">แจ้งเหตุฉุกเฉิน</h3>
+                  <p className="text-xs text-muted-foreground mt-1 whitespace-normal text-left">
+                    สัตว์บาดเจ็บ ป่วย หรือดุร้ายไล่กัด
+                  </p>
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="adoption"
+                  className={`
+                    h-auto p-4 flex-col items-start rounded-xl border-2 transition-all duration-300 text-left
+                    ${
+                      formData.type === "adoption"
+                        ? "border-primary bg-primary/10 data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
+                        : "border-border hover:bg-muted"
+                    }
+                  `}
+                >
+                  <Home className="w-8 h-8 mb-2" />
+                  <h3 className="font-bold text-sm w-full text-left">หาบ้านให้สัตว์</h3>
+                  <p className="text-xs text-muted-foreground mt-1 whitespace-normal text-left">
+                    ลงข้อมูลสัตว์จรจัดเพื่อเปิดรับอุปการะ
+                  </p>
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+
+            {/* Category (for emergency) */}
+            {formData.type === "emergency" && (
+              <div className="space-y-3 animate-slide-up">
+                <Label className="text-sm font-semibold">ประเภทเหตุ</Label>
+                <ToggleGroup
+                  value={[formData.category]}
+                  onValueChange={(val: any) => {
+                    const v = Array.isArray(val) ? val[0] : val;
+                    if (v) updateField("category", v as ReportCategory);
+                  }}
+                  className="grid grid-cols-3 gap-2"
+                >
+                  {(["injured", "aggressive", "sick"] as ReportCategory[]).map(
+                    (cat) => (
+                      <ToggleGroupItem
+                        key={cat}
+                        value={cat}
+                        className={`
+                          h-auto p-3 flex-col rounded-xl border transition-all duration-300 text-center text-xs
+                          ${
+                            formData.category === cat
+                              ? "border-primary bg-primary/10 data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
+                              : "border-border hover:bg-muted"
+                          }
+                        `}
+                      >
+                        <span className="block mb-1">
+                          {cat === "injured"
+                            ? <Activity className="w-5 h-5 mx-auto" />
+                            : cat === "aggressive"
+                              ? <AlertTriangle className="w-5 h-5 mx-auto" />
+                              : <Thermometer className="w-5 h-5 mx-auto" />}
+                        </span>
+                        {CATEGORY_LABELS[cat]}
+                      </ToggleGroupItem>
+                    )
+                  )}
+                </ToggleGroup>
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-5">
+            {/* Animal Type */}
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold">ชนิดสัตว์</Label>
+              <ToggleGroup
+                value={[formData.animalType]}
+                onValueChange={(val: any) => {
+                  const v = Array.isArray(val) ? val[0] : val;
+                  if (v) updateField("animalType", v as AnimalType);
+                }}
+                className="flex gap-2"
+              >
+                {(["dog", "cat", "other"] as AnimalType[]).map((type) => (
+                  <ToggleGroupItem
+                    key={type}
+                    value={type}
+                    className={`
+                      flex-1 h-auto p-3 flex-col rounded-xl border transition-all duration-300 text-center text-xs
+                      ${
+                          formData.animalType === type
+                            ? "border-primary bg-primary/10 data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
+                            : "border-border hover:bg-muted"
+                        }
+                      `}
+                    >
+                      <span className="block mb-1">
+                        {type === "dog" ? <CuteDogIcon className="w-6 h-6 mx-auto" /> : type === "cat" ? <CuteCatIcon className="w-6 h-6 mx-auto" /> : <CutePawIcon className="w-6 h-6 mx-auto" />}
+                    </span>
+                    {ANIMAL_TYPE_LABELS[type]}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+
+            {/* Title */}
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm font-semibold">
+                หัวข้อ *
+              </Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => updateField("title", e.target.value)}
+                placeholder="เช่น สุนัขบาดเจ็บที่ขา ซอยลาดพร้าว 71"
+                className=""
+              />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-semibold">
+                รายละเอียด *
+              </Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => updateField("description", e.target.value)}
+                placeholder="อธิบายลักษณะสัตว์ สภาพ สี ขนาด และสถานการณ์..."
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Severity (emergency only) */}
+            {formData.type === "emergency" && (
+              <div className="space-y-3 animate-slide-up">
+                <Label className="text-sm font-semibold">
+                  ระดับความรุนแรง
+                </Label>
+                <ToggleGroup
+                  value={[formData.severity]}
+                  onValueChange={(val: any) => {
+                    const v = Array.isArray(val) ? val[0] : val;
+                    if (v) updateField("severity", v as Severity);
+                  }}
+                  className="grid grid-cols-4 gap-2"
+                >
+                  {(["low", "medium", "high", "critical"] as Severity[]).map(
+                    (sev) => {
+                      const colors: Record<string, string> = {
+                        low: "border-primary bg-primary/10 data-[state=on]:bg-primary/10 data-[state=on]:text-primary",
+                        medium: "border-primary bg-primary/10 data-[state=on]:bg-primary/10 data-[state=on]:text-primary",
+                        high: "border-primary bg-primary/10 data-[state=on]:bg-primary/10 data-[state=on]:text-primary",
+                        critical: "border-destructive bg-destructive/10 data-[state=on]:bg-destructive/10 data-[state=on]:text-destructive",
+                      };
+                      return (
+                        <ToggleGroupItem
+                          key={sev}
+                          value={sev}
+                          className={`
+                            p-2 rounded-xl border transition-all duration-300 text-center text-xs
+                            ${
+                              formData.severity === sev
+                                ? colors[sev]
+                                : "border-border hover:bg-muted"
+                            }
+                          `}
+                        >
+                          {SEVERITY_LABELS[sev]}
+                        </ToggleGroupItem>
+                      );
+                    }
+                  )}
+                </ToggleGroup>
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              คลิกบนแผนที่เพื่อปักหมุดตำแหน่งที่พบสัตว์
+            </p>
+            <MapView
+              reports={[]}
+              center={formData.location || undefined}
+              zoom={formData.location ? 16 : 13}
+              onMapClick={(loc) => updateField("location", loc)}
+              selectedLocation={formData.location}
+              interactive
+              className="h-[350px]"
+            />
+            {formData.location && (
+              <div className="flex items-center gap-2 text-sm animate-slide-up">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span className="text-muted-foreground">
+                  พิกัด: {formData.location.lat.toFixed(4)},{" "}
+                  {formData.location.lng.toFixed(4)}
+                </span>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-sm font-semibold">
+                ที่อยู่ / จุดสังเกต
+              </Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => updateField("address", e.target.value)}
+                placeholder="เช่น หน้า 7-Eleven ซอยลาดพร้าว 71"
+                className=""
+              />
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-5">
+            {/* Image Upload */}
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold">
+                รูปภาพ (ไม่บังคับ)
+              </Label>
+              <div
+                className={`
+                  border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
+                  transition-all duration-300
+                  ${
+                    formData.imageBase64
+                      ? "border-green-500/30 bg-green-500/5"
+                      : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                  }
+                `}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {formData.imageBase64 ? (
+                  <div className="space-y-3">
+                    <img
+                      src={formData.imageBase64}
+                      alt="Preview"
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                    <p className="text-xs text-green-500 mt-2">
+                      <CheckCircle2 className="w-4 h-4 inline mr-1" /> อัพโหลดรูปภาพแล้ว (คลิกเพื่อเปลี่ยน)
+                    </p>
+                  </div>
+              ) : (
+                <>
+                  <ImageIcon className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      คลิกเพื่อเลือกรูปภาพ
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
+                      รองรับ JPG, PNG (สูงสุด 5MB)
+                    </p>
+                  </>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </div>
+            </div>
+
+            {/* Contact info */}
+            <div className="space-y-2">
+              <Label htmlFor="reporterName" className="text-sm font-semibold">
+                ชื่อผู้แจ้ง
+              </Label>
+              <Input
+                id="reporterName"
+                value={formData.reporterName}
+                onChange={(e) => updateField("reporterName", e.target.value)}
+                placeholder="ชื่อ-นามสกุล หรือชื่อเล่น"
+                className=""
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactInfo" className="text-sm font-semibold">
+                ข้อมูลติดต่อ
+              </Label>
+              <Input
+                id="contactInfo"
+                value={formData.contactInfo}
+                onChange={(e) => updateField("contactInfo", e.target.value)}
+                placeholder="เบอร์โทร, LINE ID, หรือ Facebook"
+                className=""
+              />
+            </div>
+          </div>
+        )}
+        </CardContent>
+      </Card>
+
+      {/* Navigation buttons */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => setStep((s) => s - 1)}
+          disabled={step === 0}
+          className="gap-2 border-white/10 hover:bg-white/5"
+        >
+          ← ย้อนกลับ
+        </Button>
+
+        {step < STEPS.length - 1 ? (
+          <Button
+            onClick={() => setStep((s) => s + 1)}
+            disabled={!canNext()}
+            className="gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+          >
+            ถัดไป →
+          </Button>
+        ) : (
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className={`gap-2 shadow-sm ${
+              formData.type === "emergency"
+                ? ""
+                : ""
+            }`}
+            variant={formData.type === "emergency" ? "destructive" : "default"}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                กำลังส่ง...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-4 h-4" /> ส่งรายงาน
+              </>
+            )}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

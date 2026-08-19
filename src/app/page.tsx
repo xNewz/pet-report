@@ -1,69 +1,187 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useMemo } from "react";
+import { useReports, useStats } from "@/hooks/useReports";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import MapView from "@/components/map/MapView";
+import RadiusSearch from "@/components/map/RadiusSearch";
+import StatsBar from "@/components/ui/StatsBar";
+import ReportDetail from "@/components/reports/ReportDetail";
+import { Report } from "@/lib/types";
+import { filterByRadius } from "@/utils/geo";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Link from "next/link";
+import { AlertTriangle, Home, List, Search } from "lucide-react";
+
+export default function HomePage() {
+  const { reports, loading } = useReports();
+  const { effectiveLocation, loading: geoLoading, requestLocation } = useGeolocation();
+  const [radiusKm, setRadiusKm] = useState(3);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+
+  const filteredReports = useMemo(
+    () => filterByRadius(reports, effectiveLocation, radiusKm),
+    [reports, effectiveLocation, radiusKm]
+  );
+
+  const stats = useStats(reports);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-6 pb-12">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-muted/50 border-b">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-12 pb-8">
+          <div className="text-center space-y-4 animate-slide-up">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-primary">
+              Community Stray Pet Watch
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+              แพลตฟอร์มแจ้งจุดสัตว์จรจัดป่วย/ดุร้าย และหาบ้าน
+              <br className="hidden sm:block" />
+              เพื่อชุมชนที่ปลอดภัยสำหรับทุกชีวิต
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Link href="/report">
+                <Button
+                  size="lg"
+                  variant="destructive"
+                  className="gap-2 shadow-sm transition-all duration-300 hover:scale-105 text-base px-8"
+                >
+                  <AlertTriangle className="h-5 w-5" /> แจ้งเหตุฉุกเฉิน
+                </Button>
+              </Link>
+              <Link href="/report">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 transition-all duration-300 hover:scale-105 text-base px-8"
+                >
+                  <Home className="h-5 w-5 text-primary" /> แจ้งหาบ้าน
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+      </section>
+
+      {/* Stats */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6">
+        <StatsBar stats={stats} />
+      </section>
+
+      {/* Map + Radius Search */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Sidebar */}
+          <div className="lg:w-72 space-y-4 shrink-0">
+            <RadiusSearch
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+              onUseCurrentLocation={requestLocation}
+              resultCount={filteredReports.length}
+              loading={geoLoading}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {/* Quick list of nearby */}
+            <Card className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <List className="h-4 w-4" />
+                  รายการล่าสุดใกล้เคียง
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+              {loading ? (
+                <div className="space-y-2">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="h-14 rounded-xl bg-white/5 animate-shimmer"
+                    />
+                  ))}
+                </div>
+              ) : filteredReports.length > 0 ? (
+                <ScrollArea className="h-[320px] w-full pr-3">
+                  <div className="space-y-2">
+                    {filteredReports.slice(0, 8).map((report) => (
+                      <button
+                        key={report.id}
+                        onClick={() => setSelectedReport(report)}
+                        className="w-full text-left p-3 rounded-xl bg-white/3 hover:bg-white/5 transition-all duration-200 group"
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="mt-0.5">
+                            {report.type === "emergency" ? (
+                              <AlertTriangle className="h-4 w-4 text-destructive" />
+                            ) : (
+                              <Home className="h-4 w-4 text-primary" />
+                            )}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium line-clamp-1 group-hover:text-primary transition-colors">
+                              {report.title}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground line-clamp-1">
+                              {report.address || `${report.location.lat.toFixed(3)}, ${report.location.lng.toFixed(3)}`}
+                            </p>
+                          </div>
+                          <span
+                            className={`text-[9px] px-1.5 py-0.5 rounded-full shrink-0 ${
+                              report.type === "emergency"
+                                ? "bg-red-500/20 text-red-300"
+                                : "bg-green-500/20 text-green-300"
+                            }`}
+                          >
+                            {report.type === "emergency" ? "ฉุกเฉิน" : "หาบ้าน"}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground flex flex-col items-center">
+                  <Search className="h-8 w-8 mb-2 opacity-20" />
+                  <p className="text-xs">ไม่พบรายการในรัศมีนี้</p>
+                </div>
+              )}
+
+              {filteredReports.length > 0 && (
+                <Link href="/feed">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-xs hover:bg-white/5 text-muted-foreground"
+                  >
+                    ดูทั้งหมด →
+                  </Button>
+                </Link>
+              )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Map */}
+          <div className="flex-1">
+            <MapView
+              reports={filteredReports}
+              center={effectiveLocation}
+              radiusKm={radiusKm}
+              selectedLocation={effectiveLocation}
+              className="h-[500px] lg:h-[600px]"
+            />
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Detail modal */}
+      <ReportDetail
+        report={selectedReport}
+        open={!!selectedReport}
+        onClose={() => setSelectedReport(null)}
+        userLocation={effectiveLocation}
+      />
     </div>
   );
 }

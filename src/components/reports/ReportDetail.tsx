@@ -1,0 +1,233 @@
+"use client";
+
+import {
+  Report,
+  CATEGORY_LABELS,
+  SEVERITY_LABELS,
+  STATUS_LABELS,
+  ANIMAL_TYPE_LABELS,
+  REPORT_TYPE_LABELS,
+  ReportStatus,
+} from "@/lib/types";
+import { formatDistance, getDistanceFromLocation } from "@/utils/geo";
+import { Location } from "@/lib/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { updateReportStatus } from "@/hooks/useReports";
+import { useState } from "react";
+import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone } from "lucide-react";
+import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
+
+interface ReportDetailProps {
+  report: Report | null;
+  open: boolean;
+  onClose: () => void;
+  userLocation?: Location | null;
+}
+
+export default function ReportDetail({
+  report,
+  open,
+  onClose,
+  userLocation,
+}: ReportDetailProps) {
+  const [updating, setUpdating] = useState(false);
+
+  if (!report) return null;
+
+  const isEmergency = report.type === "emergency";
+  const distance = userLocation
+    ? getDistanceFromLocation(userLocation, report.location)
+    : null;
+
+  const handleStatusUpdate = async (status: ReportStatus) => {
+    setUpdating(true);
+    try {
+      await updateReportStatus(report.id, status);
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
+    setUpdating(false);
+  };
+
+  const severityColors: Record<string, string> = {
+    low: "border-primary/30 text-primary",
+    medium: "border-primary/30 text-primary",
+    high: "border-primary/30 text-primary",
+    critical: "border-destructive/30 text-destructive animate-pulse",
+  };
+
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${report.location.lat},${report.location.lng}`;
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+        {/* Image */}
+        {report.imageUrl && (
+          <div className="relative h-56 overflow-hidden">
+            <img
+              src={report.imageUrl}
+              alt={report.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={isEmergency ? "destructive" : "default"}
+                  className="gap-1"
+                >
+                  {isEmergency ? <AlertTriangle className="w-3 h-3" /> : <Home className="w-3 h-3" />}
+                  {isEmergency ? "ฉุกเฉิน" : "หาบ้าน"}
+                </Badge>
+                {isEmergency && (
+                  <Badge variant="outline" className={severityColors[report.severity]}>
+                    {SEVERITY_LABELS[report.severity]}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="p-6 space-y-5">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <span className="text-primary flex items-center justify-center p-2 bg-primary/10 rounded-lg">
+                {report.animalType === "dog"
+                  ? <CuteDogIcon className="w-6 h-6" />
+                  : report.animalType === "cat"
+                    ? <CuteCatIcon className="w-6 h-6" />
+                    : <CutePawIcon className="w-6 h-6" />}
+              </span>
+              {report.title}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="border-border">
+              {ANIMAL_TYPE_LABELS[report.animalType]}
+            </Badge>
+            <Badge variant="outline" className="border-border">
+              {CATEGORY_LABELS[report.category]}
+            </Badge>
+            <Badge
+              className={
+                report.status === "active"
+                  ? "bg-secondary text-secondary-foreground"
+                  : report.status === "resolved"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-primary text-primary-foreground"
+              }
+            >
+              {STATUS_LABELS[report.status]}
+            </Badge>
+          </div>
+
+          {/* Description */}
+          <div>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              รายละเอียด
+            </h4>
+            <p className="text-sm leading-relaxed">{report.description}</p>
+          </div>
+
+          <Separator className="bg-border" />
+
+          {/* Location info */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              สถานที่
+            </h4>
+            {report.address && (
+              <p className="text-sm flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                {report.address}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              พิกัด: {report.location.lat.toFixed(4)},{" "}
+              {report.location.lng.toFixed(4)}
+            </p>
+            {distance !== null && (
+              <p className="text-xs text-muted-foreground">
+                ระยะห่าง: {formatDistance(distance)}
+              </p>
+            )}
+          </div>
+
+          <Separator className="bg-border" />
+
+          {/* Contact */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              ข้อมูลผู้แจ้ง
+            </h4>
+            <p className="text-sm flex items-center gap-2">
+              <User className="w-4 h-4 text-muted-foreground" />
+              {report.reporterName || "ไม่ระบุชื่อ"}
+            </p>
+            {report.contactInfo && (
+              <p className="text-sm flex items-center gap-2">
+                <Phone className="w-4 h-4 text-muted-foreground" />
+                {report.contactInfo}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              แจ้งเมื่อ:{" "}
+              {new Date(report.createdAt).toLocaleString("th-TH")}
+            </p>
+          </div>
+
+          <Separator className="bg-border" />
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1"
+            >
+              <Button variant="default" className="w-full gap-2">
+                <Navigation className="w-4 h-4" /> นำทาง Google Maps
+              </Button>
+            </a>
+
+            {report.status === "active" && (
+              <>
+                {isEmergency ? (
+                  <Button
+                    variant="outline"
+                    className="flex-1 gap-2"
+                    onClick={() => handleStatusUpdate("resolved")}
+                    disabled={updating}
+                  >
+                    <CheckCircle2 className="w-4 h-4" /> ช่วยเหลือแล้ว
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="flex-1 gap-2"
+                    onClick={() => handleStatusUpdate("adopted")}
+                    disabled={updating}
+                  >
+                    <Home className="w-4 h-4" /> หาบ้านได้แล้ว
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

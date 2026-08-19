@@ -1,0 +1,22 @@
+{
+  "rules": {
+    "reports": {
+      // เปิดให้ทุกคนสามารถอ่านข้อมูลประกาศได้
+      ".read": true,
+      // เปิดให้ทุกคนสามารถเขียน/สร้างประกาศใหม่ได้
+      // (หากอนาคตมีระบบ Login ควรเปลี่ยนเป็น ".write": "auth != null")
+      ".write": true,
+      
+      // กำหนด Data Validation เบื้องต้นสำหรับแต่ละรายการ
+      "$report_id": {
+        ".validate": "newData.hasChildren(['type', 'animalType', 'title', 'location', 'createdAt'])",
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    }
+  }
+}
