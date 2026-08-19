@@ -14,10 +14,16 @@ import Link from "next/link";
 import { CuteDogIcon } from "@/components/ui/AnimalIcons";
 import { Report } from "@/lib/types";
 import { useState } from "react";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import MapView from "@/components/map/MapView";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { BellRing } from "lucide-react";
 
 export default function ProfilePage() {
   const { user, loading, logout } = useAuth();
   const { reports, loading: reportsLoading } = useReports();
+  const { profile, updateHomeLocation, updateNotificationRadius } = useUserProfile();
   const router = useRouter();
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
@@ -60,6 +66,51 @@ export default function ProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Notification Settings */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          <BellRing className="w-5 h-5 text-primary" />
+          การแจ้งเตือนตามพื้นที่
+        </h2>
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-base">1. ปักหมุด "บ้านของฉัน"</Label>
+              <p className="text-sm text-muted-foreground">
+                คลิกบนแผนที่เพื่อตั้งตำแหน่งบ้านของคุณ ระบบจะแจ้งเตือนเมื่อมีเหตุเกิดใกล้บ้าน
+              </p>
+              <div className="h-64 rounded-xl overflow-hidden border">
+                <MapView
+                  reports={[]}
+                  selectedLocation={profile?.homeLocation}
+                  onMapClick={(loc) => updateHomeLocation(loc)}
+                  interactive={true}
+                  center={profile?.homeLocation || { lat: 13.7563, lng: 100.5018 }}
+                  zoom={12}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Label className="text-base">2. รัศมีการแจ้งเตือน</Label>
+                <span className="font-bold text-primary">{profile?.notificationRadius || 5} กม.</span>
+              </div>
+              <Slider
+                value={[profile?.notificationRadius || 5]}
+                onValueChange={(val) => updateNotificationRadius(val[0])}
+                max={20}
+                min={1}
+                step={1}
+              />
+              <p className="text-sm text-muted-foreground">
+                คุณจะได้รับการแจ้งเตือนทันทีเมื่อมีผู้โพสต์เหตุฉุกเฉินในรัศมี {profile?.notificationRadius || 5} กิโลเมตรจากบ้านของคุณ
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       {/* User's Reports */}
       <div className="space-y-4">

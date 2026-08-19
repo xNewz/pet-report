@@ -21,6 +21,14 @@ export interface Location {
   lng: number;
 }
 
+// ===== User Profile =====
+
+export interface UserProfile {
+  uid: string;
+  homeLocation: Location | null;
+  notificationRadius: number; // in km
+}
+
 // ===== Report =====
 
 export interface Report {
