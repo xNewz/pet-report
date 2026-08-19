@@ -99,7 +99,7 @@ export default function ProfilePage() {
               </div>
               <Slider
                 value={[profile?.notificationRadius || 5]}
-                onValueChange={(val) => updateNotificationRadius(val[0])}
+                onValueChange={(val) => updateNotificationRadius(Array.isArray(val) ? val[0] : val)}
                 max={20}
                 min={1}
                 step={1}

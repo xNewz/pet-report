@@ -22,10 +22,11 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { updateReportStatus, deleteReport } from "@/hooks/useReports";
 import { useState } from "react";
-import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone, Trash2 } from "lucide-react";
+import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone, Trash2, Share2 } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface ReportDetailProps {
   report: Report | null;
@@ -58,6 +59,32 @@ export default function ReportDetail({
         alert("เกิดข้อผิดพลาดในการลบโพสต์");
       } finally {
         setUpdating(false);
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/report/${report.id}`;
+    const shareText = `[Community Stray Pet Watch] ${report.title}\n\nตรวจสอบรายละเอียดและช่วยเหลือได้ที่นี่:\n`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: report.title,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        // User cancelled or failed
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(`${shareText}${shareUrl}`);
+        toast.success("คัดลอกลิงก์เรียบร้อยแล้ว!", {
+          description: "คุณสามารถนำไปวางใน LINE หรือ Facebook ได้เลย"
+        });
+      } catch (err) {
+        toast.error("ไม่สามารถคัดลอกลิงก์ได้");
       }
     }
   };
@@ -231,6 +258,14 @@ export default function ReportDetail({
                 <Navigation className="w-4 h-4" /> นำทาง (Maps)
               </Button>
             </a>
+
+            <Button
+              variant="secondary"
+              className="flex-1 min-w-[100px] gap-2"
+              onClick={handleShare}
+            >
+              <Share2 className="w-4 h-4" /> แชร์
+            </Button>
 
             {user && user.uid === report.reporterId && (
               <>
