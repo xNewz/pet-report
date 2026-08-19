@@ -220,15 +220,15 @@ export default function ReportDetail({
           <Separator className="bg-border" />
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-wrap gap-2">
             <a
               href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1"
+              className="flex-1 min-w-[130px]"
             >
               <Button variant="default" className="w-full gap-2">
-                <Navigation className="w-4 h-4" /> นำทาง Google Maps
+                <Navigation className="w-4 h-4" /> นำทาง (Maps)
               </Button>
             </a>
 
@@ -239,7 +239,7 @@ export default function ReportDetail({
                     {isEmergency ? (
                       <Button
                         variant="outline"
-                        className="flex-1 gap-2"
+                        className="flex-1 min-w-[130px] gap-2"
                         onClick={() => handleStatusUpdate("resolved")}
                         disabled={updating}
                       >
@@ -248,7 +248,7 @@ export default function ReportDetail({
                     ) : (
                       <Button
                         variant="outline"
-                        className="flex-1 gap-2"
+                        className="flex-1 min-w-[130px] gap-2"
                         onClick={() => handleStatusUpdate("adopted")}
                         disabled={updating}
                       >

@@ -8,14 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, LayoutList, MapPin } from "lucide-react";
 import ReportCard from "@/components/reports/ReportCard";
+import ReportDetail from "@/components/reports/ReportDetail";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { CuteDogIcon } from "@/components/ui/AnimalIcons";
+import { Report } from "@/lib/types";
+import { useState } from "react";
 
 export default function ProfilePage() {
   const { user, loading, logout } = useAuth();
   const { reports, loading: reportsLoading } = useReports();
   const router = useRouter();
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
   if (loading) {
     return <div className="p-12 text-center text-muted-foreground animate-pulse">กำลังตรวจสอบสิทธิ์...</div>;
@@ -73,7 +77,7 @@ export default function ProfilePage() {
         ) : userReports.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {userReports.map((report) => (
-              <ReportCard key={report.id} report={report} />
+              <ReportCard key={report.id} report={report} onViewDetail={setSelectedReport} />
             ))}
           </div>
         ) : (
@@ -93,6 +97,12 @@ export default function ProfilePage() {
           </Card>
         )}
       </div>
+
+      <ReportDetail
+        report={selectedReport}
+        open={!!selectedReport}
+        onClose={() => setSelectedReport(null)}
+      />
     </div>
   );
 }
