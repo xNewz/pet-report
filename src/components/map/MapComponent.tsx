@@ -189,13 +189,66 @@ export default function MapComponent(props: MapViewProps) {
           </div>
         `;
 
+        const imgUrl = report.imageUrl;
+        const richDetailHtml = `
+          <div style="font-family: var(--font-sans), system-ui, sans-serif; padding: 4px; max-width: 240px; box-sizing: border-box;">
+            ${
+              imgUrl
+                ? `<div style="position: relative; margin-bottom: 10px; border-radius: 12px; overflow: hidden; height: 135px; background: #f1f5f9; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                    <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${report.title}" />
+                    <span style="position: absolute; top: 6px; right: 6px; background: ${
+                      isEmergency ? '#ef4444' : '#10b981'
+                    }; color: white; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                      ${isEmergency ? '🚨 ฉุกเฉิน' : '🏠 หาบ้าน'}
+                    </span>
+                  </div>`
+                : `<div style="margin-bottom: 8px;">
+                    <span style="background: ${
+                      isEmergency ? '#fee2e2' : '#d1fae5'
+                    }; color: ${
+                      isEmergency ? '#dc2626' : '#059669'
+                    }; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 12px; display: inline-block;">
+                      ${isEmergency ? '🚨 เหตุฉุกเฉิน' : '🏠 ประกาศหาบ้าน'}
+                    </span>
+                  </div>`
+            }
+            <p style="margin: 0 0 6px 0; font-size: 12px; color: #475569; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              ${report.description || "ไม่มีรายละเอียดเพิ่มเติม"}
+            </p>
+            ${
+              report.address
+                ? `<p style="margin: 0 0 10px 0; font-size: 11px; color: #64748b; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
+                    📍 ${report.address}
+                  </p>`
+                : ""
+            }
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${report.location.lat},${report.location.lng}"
+               target="_blank"
+               rel="noopener noreferrer"
+               style="
+                 display: block;
+                 text-align: center;
+                 padding: 8px 12px;
+                 background: linear-gradient(135deg, #f97316, #ea580c);
+                 color: white;
+                 font-size: 12px;
+                 font-weight: bold;
+                 border-radius: 10px;
+                 text-decoration: none;
+                 box-shadow: 0 3px 8px rgba(249, 115, 22, 0.3);
+                 margin-top: 4px;
+               "
+            >
+              🧭 นำทางไปยังพิกัดนี้ →
+            </a>
+          </div>
+        `;
+
         const marker = new window.longdo.Marker(
           { lon: report.location.lng, lat: report.location.lat },
           {
             title: report.title,
-            detail: `${report.description || ""}<br/><br/><strong>ประเภท:</strong> ${
-              report.type === "emergency" ? "ฉุกเฉิน 🚨" : "หาบ้าน 🏠"
-            }`,
+            detail: richDetailHtml,
             icon: {
               html: markerHtml,
               offset: { x: 19, y: 19 },
