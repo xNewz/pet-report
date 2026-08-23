@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
-import { AlertTriangle, Home, List, Search } from "lucide-react";
+import ReportList from "@/components/reports/ReportList";
+import { AlertTriangle, Home, List, Search, PawPrint } from "lucide-react";
 
 export default function HomePage() {
   const { reports, loading } = useReports();
@@ -29,7 +30,7 @@ export default function HomePage() {
   const stats = useStats(reports);
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-10 pb-16">
       {/* Hero */}
       <section className="relative overflow-hidden bg-background border-b border-border/40">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
@@ -109,7 +110,7 @@ export default function HomePage() {
                       <button
                         key={report.id}
                         onClick={() => setSelectedReport(report)}
-                        className="w-full text-left p-3 rounded-xl bg-white/3 hover:bg-white/5 transition-all duration-200 group"
+                        className="w-full text-left p-3 rounded-xl bg-muted/30 hover:bg-muted/60 transition-all duration-200 group border border-transparent hover:border-border"
                       >
                         <div className="flex items-start gap-2">
                           <span className="mt-0.5">
@@ -130,8 +131,8 @@ export default function HomePage() {
                           <span
                             className={`text-[9px] px-1.5 py-0.5 rounded-full shrink-0 ${
                               report.type === "emergency"
-                                ? "bg-red-500/20 text-red-300"
-                                : "bg-green-500/20 text-green-300"
+                                ? "bg-red-500/20 text-red-400"
+                                : "bg-green-500/20 text-green-400"
                             }`}
                           >
                             {report.type === "emergency" ? "ฉุกเฉิน" : "หาบ้าน"}
@@ -153,9 +154,9 @@ export default function HomePage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full text-xs hover:bg-white/5 text-muted-foreground"
+                    className="w-full text-xs hover:bg-muted text-muted-foreground"
                   >
-                    ดูทั้งหมด →
+                    ดูฟีดทั้งหมด →
                   </Button>
                 </Link>
               )}
@@ -174,6 +175,34 @@ export default function HomePage() {
             />
           </div>
         </div>
+      </section>
+
+      {/* Main Reports Feed Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 border-t border-border/50 pt-8">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <PawPrint className="w-6 h-6 text-primary" />
+              ฟีดรายการทั้งหมด
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              ค้นหา กรอง และตรวจสอบรายการแจ้งเหตุและประกาศหาบ้านจากชุมชน
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="h-72 rounded-2xl bg-muted/20 animate-pulse border border-border"
+              />
+            ))}
+          </div>
+        ) : (
+          <ReportList reports={reports} userLocation={effectiveLocation} />
+        )}
       </section>
 
       {/* Detail modal */}

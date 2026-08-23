@@ -74,6 +74,8 @@ export interface ReportFilter {
   category?: ReportCategory;
   status?: ReportStatus;
   animalType?: AnimalType;
+  searchQuery?: string;
+  maxDistanceKm?: number;
 }
 
 export type SortOption = "newest" | "nearest" | "urgent";

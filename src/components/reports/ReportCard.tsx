@@ -13,6 +13,7 @@ interface ReportCardProps {
   userLocation?: Location | null;
   onViewDetail: (report: Report) => void;
   index?: number;
+  viewMode?: "grid" | "list";
 }
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +23,7 @@ export default function ReportCard({
   userLocation,
   onViewDetail,
   index = 0,
+  viewMode = "grid",
 }: ReportCardProps) {
   const isEmergency = report.type === "emergency";
   const distance = userLocation
@@ -42,6 +44,94 @@ export default function ReportCard({
     resolved: "bg-primary text-primary-foreground",
     adopted: "bg-primary text-primary-foreground",
   };
+
+  if (viewMode === "list") {
+    return (
+      <div
+        className="group cursor-pointer transition-all duration-300 hover:translate-x-1 animate-slide-up"
+        style={{ animationDelay: `${index * 0.03}s` }}
+        onClick={() => onViewDetail(report)}
+      >
+        <Card className="overflow-hidden rounded-xl border border-border/60 hover:border-primary/50 shadow-sm hover:shadow-md transition-all p-3 bg-card">
+          <div className="flex items-center gap-3">
+            {/* Image / Icon thumbnail */}
+            <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-muted/30">
+              {report.imageUrl ? (
+                <img
+                  src={report.imageUrl}
+                  alt={report.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  {report.animalType === "dog" ? (
+                    <CuteDogIcon className="w-8 h-8 opacity-60" />
+                  ) : report.animalType === "cat" ? (
+                    <CuteCatIcon className="w-8 h-8 opacity-60" />
+                  ) : (
+                    <CutePawIcon className="w-8 h-8 opacity-60" />
+                  )}
+                </div>
+              )}
+              <div className="absolute top-1 left-1">
+                <Badge
+                  variant={isEmergency ? "destructive" : "default"}
+                  className="text-[9px] px-1.5 py-0"
+                >
+                  {isEmergency ? "ฉุกเฉิน" : "หาบ้าน"}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Middle Info */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-bold text-sm truncate group-hover:text-primary transition-colors">
+                  {report.title}
+                </h3>
+                <Badge className={`text-[10px] shrink-0 ${statusColors[report.status]}`}>
+                  {STATUS_LABELS[report.status]}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground line-clamp-1">
+                {report.description}
+              </p>
+              <div className="flex items-center gap-2 pt-0.5 text-[11px] text-muted-foreground flex-wrap">
+                <span className="flex items-center gap-1 font-medium text-foreground">
+                  {ANIMAL_TYPE_LABELS[report.animalType]}
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> {timeAgo}
+                </span>
+                {distance !== null && (
+                  <>
+                    <span>•</span>
+                    <span className="flex items-center gap-1 text-primary">
+                      <MapPin className="w-3 h-3" /> {formatDistance(distance)}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Action button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs shrink-0 hidden sm:flex hover:bg-primary/10 hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetail(report);
+              }}
+            >
+              รายละเอียด →
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div

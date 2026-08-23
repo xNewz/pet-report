@@ -71,6 +71,25 @@ export function useFilteredReports(
     if (filter.status && report.status !== filter.status) return false;
     if (filter.animalType && report.animalType !== filter.animalType)
       return false;
+    if (filter.searchQuery && filter.searchQuery.trim() !== "") {
+      const q = filter.searchQuery.toLowerCase().trim();
+      const matchTitle = report.title.toLowerCase().includes(q);
+      const matchDesc = report.description.toLowerCase().includes(q);
+      const matchAddress = (report.address || "").toLowerCase().includes(q);
+      const matchReporter = (report.reporterName || "").toLowerCase().includes(q);
+      if (!matchTitle && !matchDesc && !matchAddress && !matchReporter) {
+        return false;
+      }
+    }
+    if (filter.maxDistanceKm && userLocation) {
+      const dist = calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        report.location.lat,
+        report.location.lng
+      );
+      if (dist > filter.maxDistanceKm) return false;
+    }
     return true;
   });
 
