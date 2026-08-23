@@ -15,7 +15,7 @@ import { CuteDogIcon } from "@/components/ui/AnimalIcons";
 import { Report } from "@/lib/types";
 import { useState } from "react";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import MapView from "@/components/map/MapView";
+import LocationPicker from "@/components/map/LocationPicker";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { BellRing } from "lucide-react";
@@ -76,20 +76,14 @@ export default function ProfilePage() {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-base">1. ปักหมุด "บ้านของฉัน"</Label>
+              <Label className="text-base font-bold">1. ปักหมุด "บ้านของฉัน"</Label>
               <p className="text-sm text-muted-foreground">
-                คลิกบนแผนที่เพื่อตั้งตำแหน่งบ้านของคุณ ระบบจะแจ้งเตือนเมื่อมีเหตุเกิดใกล้บ้าน
+                ค้นหาสถานที่ กดดึง GPS หรือแตะบนแผนที่เพื่อตั้งตำแหน่งบ้าน ระบบจะแจ้งเตือนเมื่อมีเหตุเกิดใกล้บ้าน
               </p>
-              <div className="h-64 rounded-xl overflow-hidden border">
-                <MapView
-                  reports={[]}
-                  selectedLocation={profile?.homeLocation}
-                  onMapClick={(loc) => updateHomeLocation(loc)}
-                  interactive={true}
-                  center={profile?.homeLocation || { lat: 13.7563, lng: 100.5018 }}
-                  zoom={12}
-                />
-              </div>
+              <LocationPicker
+                value={profile?.homeLocation || null}
+                onChange={(loc) => updateHomeLocation(loc)}
+              />
             </div>
 
             <div className="space-y-4">

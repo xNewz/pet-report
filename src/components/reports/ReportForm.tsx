@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import MapView from "@/components/map/MapView";
+import LocationPicker from "@/components/map/LocationPicker";
 import { CheckCircle2, AlertTriangle, Home, MapPin, Camera, ClipboardList, PawPrint, Activity, Thermometer, ImageIcon, Loader2 } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
 import { useAuth } from "@/contexts/AuthContext";
@@ -382,36 +382,25 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
 
         {step === 2 && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              คลิกบนแผนที่เพื่อปักหมุดตำแหน่งที่พบสัตว์
-            </p>
-            <MapView
-              reports={[]}
-              center={formData.location || undefined}
-              zoom={formData.location ? 16 : 13}
-              onMapClick={(loc) => updateField("location", loc)}
-              selectedLocation={formData.location}
-              interactive
-              className="h-[350px]"
+            <LocationPicker
+              value={formData.location}
+              initialAddress={formData.address}
+              onChange={(loc, addressName) => {
+                updateField("location", loc);
+                if (addressName) {
+                  updateField("address", addressName);
+                }
+              }}
             />
-            {formData.location && (
-              <div className="flex items-center gap-2 text-sm animate-slide-up">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-muted-foreground">
-                  พิกัด: {formData.location.lat.toFixed(4)},{" "}
-                  {formData.location.lng.toFixed(4)}
-                </span>
-              </div>
-            )}
             <div className="space-y-2">
               <Label htmlFor="address" className="text-sm font-semibold">
-                ที่อยู่ / จุดสังเกต
+                จุดสังเกตเพิ่มเติม (ถ้ามี)
               </Label>
               <Input
                 id="address"
                 value={formData.address}
                 onChange={(e) => updateField("address", e.target.value)}
-                placeholder="เช่น หน้า 7-Eleven ซอยลาดพร้าว 71"
+                placeholder="เช่น หน้า 7-Eleven, ข้างเสาไฟฟ้า..."
                 className=""
               />
             </div>

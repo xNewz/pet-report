@@ -75,3 +75,75 @@ export const DEFAULT_CENTER: Location = {
 };
 
 export const DEFAULT_ZOOM = 13;
+
+export interface LocationSearchResult {
+  display_name: string;
+  lat: number;
+  lng: number;
+}
+
+/**
+ * Reverse geocode coordinates to a readable address string using Nominatim.
+ */
+export async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=th`,
+      {
+        headers: {
+          "User-Agent": "PetReportApp/1.0",
+        },
+      }
+    );
+    if (!res.ok) return "";
+    const data = await res.json();
+    if (data && data.display_name) {
+      const addr = data.address;
+      if (addr) {
+        const parts = [
+          addr.building || addr.amenity || addr.shop || addr.tourism,
+          addr.road || addr.pedestrian || addr.suburb || addr.neighbourhood,
+          addr.city_district || addr.district || addr.suburb,
+          addr.city || addr.province || addr.state,
+        ].filter(Boolean);
+        if (parts.length > 0) {
+          return parts.join(", ");
+        }
+      }
+      return data.display_name;
+    }
+  } catch (err) {
+    console.warn("Reverse geocode failed:", err);
+  }
+  return "";
+}
+
+/**
+ * Search locations by query string using Nominatim.
+ */
+export async function searchLocations(query: string): Promise<LocationSearchResult[]> {
+  if (!query || query.trim().length < 2) return [];
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        query
+      )}&countrycodes=th&limit=5&accept-language=th`,
+      {
+        headers: {
+          "User-Agent": "PetReportApp/1.0",
+        },
+      }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.map((item: any) => ({
+      display_name: item.display_name,
+      lat: parseFloat(item.lat),
+      lng: parseFloat(item.lon),
+    }));
+  } catch (err) {
+    console.warn("Location search failed:", err);
+    return [];
+  }
+}
+
