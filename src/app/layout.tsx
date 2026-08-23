@@ -3,6 +3,7 @@ import { Prompt } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 import { LocationNotifier } from "@/components/notifications/LocationNotifier";
@@ -45,11 +46,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="th"
       className={`${fontSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background">
+      <body className="min-h-full flex flex-col bg-background pb-16 md:pb-0">
         <AuthProvider>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <MobileBottomNav />
           <LocationNotifier />
           <Toaster position="top-right" richColors />
         </AuthProvider>
