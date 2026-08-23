@@ -258,11 +258,12 @@ export default function HomePage() {
               mobileTab === "list" ? "hidden lg:block" : "block"
             }`}
           >
-            <div className="relative rounded-2xl overflow-hidden border border-border shadow-md">
-              {/* Map header info overlay */}
-              <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none gap-2">
-                <div className="bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-foreground border shadow-sm flex items-center gap-1.5 pointer-events-auto">
-                  <Map className="w-3.5 h-3.5 text-primary" />
+            <div className="rounded-2xl overflow-hidden border border-border shadow-md bg-card">
+              {/* Map header info bar (placed cleanly outside map container to avoid blocking Longdo UI) */}
+              <div className="flex items-center justify-between gap-2 p-3 bg-muted/40 border-b border-border/60">
+                <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                  <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                  <Map className="w-4 h-4 text-primary" />
                   พบ {filteredReports.length} รายการในรัศมี {radiusKm} กม.
                 </div>
                 <Button
@@ -273,10 +274,10 @@ export default function HomePage() {
                     requestLocation();
                   }}
                   disabled={geoLoading}
-                  className="pointer-events-auto bg-background/90 backdrop-blur-md text-xs font-semibold h-8 rounded-full border shadow-sm gap-1 hover:bg-background"
+                  className="text-xs font-bold h-8 rounded-xl gap-1.5 border-primary/30 text-primary hover:bg-primary/10 shadow-2xs"
                 >
-                  <Navigation className="w-3.5 h-3.5 text-primary" />
-                  <span className="hidden sm:inline">รีเซ็ตพิกัด GPS</span>
+                  <Navigation className="w-3.5 h-3.5" />
+                  <span>รีเซ็ตพิกัด GPS</span>
                 </Button>
               </div>
 
@@ -287,7 +288,7 @@ export default function HomePage() {
                 selectedLocation={activeCenter}
                 onMapClick={(loc) => setCustomCenter(loc)}
                 interactive
-                className="h-[480px] sm:h-[550px] lg:h-[620px]"
+                className="h-[480px] sm:h-[550px] lg:h-[600px] border-none rounded-none"
               />
             </div>
           </div>

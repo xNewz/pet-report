@@ -228,10 +228,10 @@ export default function LocationPicker({
       </div>
 
       {/* Map display */}
-      <div className="relative rounded-2xl overflow-hidden border shadow-inner">
-        <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium text-foreground border shadow-md flex items-center gap-1.5 pointer-events-none">
+      <div className="rounded-2xl overflow-hidden border border-border shadow-md bg-card">
+        <div className="p-2.5 bg-muted/40 border-b border-border/60 text-xs font-bold text-foreground flex items-center gap-1.5">
           <Compass className="w-3.5 h-3.5 text-primary" />
-          แตะบนแผนที่เพื่อเลือกจุดเกิดเหตุ
+          แตะบนแผนที่เพื่อปักหมุดจุดเกิดเหตุ (จำกัดในประเทศไทย)
         </div>
 
         <MapView
@@ -241,8 +241,18 @@ export default function LocationPicker({
           onMapClick={(loc) => handleSelectLocation(loc)}
           selectedLocation={value}
           interactive
-          className="h-[380px]"
+          className="h-[380px] border-none rounded-none"
         />
+      </div>
+
+      {/* Desktop Wi-Fi GPS Explanation Note */}
+      <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-2">
+        <Info className="w-4 h-4 shrink-0 mt-0.5" />
+        <p className="leading-relaxed">
+          <strong>คำแนะนำในการปักหมุด:</strong> หากใช้งานบนคอมพิวเตอร์/โน้ตบุ๊ก สัญญาณอินเทอร์เน็ตอาจอ้างอิงพิกัดกลางเมืองหรือเสาโหนด ISP ของค่ายเน็ต
+          <br />
+          คุณสามารถ<strong>พิมพ์ชื่อสถานที่/ซอย</strong>ในช่องค้นหาด้านบน หรือ<strong>แตะลงบนแผนที่</strong>ตรงจุดจริงได้ทันทีครับ
+        </p>
       </div>
 
       {/* Selected location indicator card */}
