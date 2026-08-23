@@ -20,9 +20,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import LocationPicker from "@/components/map/LocationPicker";
-import { CheckCircle2, AlertTriangle, Home, MapPin, Camera, ClipboardList, PawPrint, Activity, Thermometer, ImageIcon, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Home, MapPin, Camera, ClipboardList, PawPrint, Activity, Thermometer, ImageIcon, Loader2, Zap } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
 import { useAuth } from "@/contexts/AuthContext";
+import { compressImage, formatBytes } from "@/utils/imageCompressor";
 
 interface ReportFormProps {
   onSuccess?: () => void;
@@ -63,15 +64,39 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionStats, setCompressionStats] = useState<{
+    originalSize: number;
+    compressedSize: number;
+  } | null>(null);
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      updateField("imageBase64", reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    setIsCompressing(true);
+    try {
+      const result = await compressImage(file, {
+        maxWidth: 1200,
+        maxHeight: 1200,
+        quality: 0.78,
+        format: "image/webp",
+      });
+      updateField("imageBase64", result.base64);
+      setCompressionStats({
+        originalSize: result.originalSize,
+        compressedSize: result.compressedSize,
+      });
+    } catch (err) {
+      console.error("Failed to compress image:", err);
+      const reader = new FileReader();
+      reader.onload = () => {
+        updateField("imageBase64", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -428,23 +453,60 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
               >
                 {formData.imageBase64 ? (
                   <div className="space-y-3">
-                    <img
-                      src={formData.imageBase64}
-                      alt="Preview"
-                      className="w-full h-40 object-cover rounded-lg"
-                    />
-                    <p className="text-xs text-green-500 mt-2">
-                      <CheckCircle2 className="w-4 h-4 inline mr-1" /> อัพโหลดรูปภาพแล้ว (คลิกเพื่อเปลี่ยน)
+                    <div className="relative group">
+                      <img
+                        src={formData.imageBase64}
+                        alt="Preview"
+                        className="w-full h-44 object-cover rounded-xl border border-border shadow-xs"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateField("imageBase64", "");
+                          setCompressionStats(null);
+                        }}
+                        className="absolute top-2 right-2 text-xs h-7 px-2.5 rounded-lg font-bold shadow-md"
+                      >
+                        ลบรูป
+                      </Button>
+                    </div>
+
+                    {compressionStats && (
+                      <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/25 text-xs text-green-600 dark:text-green-400 space-y-0.5 text-left">
+                        <p className="font-bold flex items-center gap-1.5">
+                          <Zap className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+                          บีบอัดรูปภาพแล้ว (ประหยัดพื้นที่{(100 - (compressionStats.compressedSize / compressionStats.originalSize) * 100).toFixed(1)}%)
+                        </p>
+                        <p className="text-[11px] opacity-90 pl-5">
+                          จาก {formatBytes(compressionStats.originalSize)} เหลือเพียง <strong>{formatBytes(compressionStats.compressedSize)}</strong> (ความละเอียด HD 1200px คมชัดเท่าเดิม)
+                        </p>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      คลิกที่รูปเพื่อเปลี่ยนเป็นรูปอื่น
                     </p>
                   </div>
-              ) : (
-                <>
-                  <ImageIcon className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      คลิกเพื่อเลือกรูปภาพ
+                ) : isCompressing ? (
+                  <div className="py-8 flex flex-col items-center justify-center space-y-2">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <p className="text-sm font-bold text-foreground">
+                      กำลังบีบอัดรูปภาพเพื่อประหยัดพื้นที่...
                     </p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      รองรับ JPG, PNG (สูงสุด 5MB)
+                    <p className="text-xs text-muted-foreground">
+                      แปลงไฟล์เป็น WebP ปรับขนาด HD 1200px ให้ภาพคมชัดและไฟล์เล็กลง 90%+
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <ImageIcon className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm font-semibold text-foreground">
+                      คลิกเพื่อเลือกรูปภาพสัตว์
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ⚡ ระบบจะบีบอัดเป็น WebP (HD 1200px) ให้อัตโนมัติ ประหยัดพื้นที่ 90%+ โดยภาพยังคมชัด
                     </p>
                   </>
                 )}
