@@ -474,7 +474,7 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
                       </Button>
                     </div>
 
-                    {compressionStats && (
+                    {/* {compressionStats && (
                       <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/25 text-xs text-green-600 dark:text-green-400 space-y-0.5 text-left">
                         <p className="font-bold flex items-center gap-1.5">
                           <Zap className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
@@ -484,7 +484,7 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
                           จาก {formatBytes(compressionStats.originalSize)} เหลือเพียง <strong>{formatBytes(compressionStats.compressedSize)}</strong> (ความละเอียด HD 1200px คมชัดเท่าเดิม)
                         </p>
                       </div>
-                    )}
+                    )} */}
                     <p className="text-xs text-muted-foreground">
                       คลิกที่รูปเพื่อเปลี่ยนเป็นรูปอื่น
                     </p>
