@@ -14,6 +14,7 @@ import {
   X,
   Compass,
   Building2,
+  Info,
 } from "lucide-react";
 import {
   reverseGeocode,
@@ -34,8 +35,10 @@ const PRESET_LOCATIONS = [
   { name: "กรุงเทพฯ", lat: 13.7563, lng: 100.5018 },
   { name: "นนทบุรี", lat: 13.8591, lng: 100.5217 },
   { name: "ปทุมธานี", lat: 14.0208, lng: 100.525 },
+  { name: "สมุทรปราการ", lat: 13.5991, lng: 100.5968 },
   { name: "ชลบุรี", lat: 13.3611, lng: 100.9847 },
   { name: "เชียงใหม่", lat: 18.7883, lng: 98.9853 },
+  { name: "ภูเก็ต", lat: 7.8804, lng: 98.3923 },
 ];
 
 export default function LocationPicker({
@@ -93,7 +96,7 @@ export default function LocationPicker({
       (err) => {
         setIsGettingGps(false);
         alert(
-          "ไม่สามารถดึงตำแหน่ง GPS ได้ กรุณาอนุญาตสิทธิ์เข้าถึงตำแหน่งหรือเลือกตำแหน่งบนแผนที่"
+          "ไม่สามารถดึงตำแหน่ง GPS ได้ กรุณาอนุญาตสิทธิ์เข้าถึงตำแหน่งในเบราว์เซอร์ หรือใช้วิธีพิมพ์ค้นหาสถานที่ด้านบน"
         );
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
@@ -124,11 +127,11 @@ export default function LocationPicker({
             <Search className="w-4 h-4 absolute left-3 text-muted-foreground pointer-events-none" />
             <Input
               type="text"
-              placeholder="ค้นหาสถานที่, ซอย, ถนน, ห้างสรรพสินค้า..."
+              placeholder="พิมพ์ชื่อสถานที่, ซอย, ถนน, หมู่บ้าน, ห้าง..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               onFocus={() => searchResults.length > 0 && setShowResults(true)}
-              className="pl-9 pr-8 text-sm"
+              className="pl-9 pr-8 text-sm rounded-xl border-border/80 shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -147,7 +150,7 @@ export default function LocationPicker({
 
           {/* Autocomplete dropdown */}
           {showResults && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-border">
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-border">
               {searchResults.map((item, index) => (
                 <button
                   key={index}
@@ -160,7 +163,7 @@ export default function LocationPicker({
                   className="w-full text-left px-4 py-3 text-xs hover:bg-primary/10 transition-colors flex items-start gap-2.5"
                 >
                   <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span className="line-clamp-2 leading-relaxed text-foreground">
+                  <span className="line-clamp-2 leading-relaxed text-foreground font-medium">
                     {item.display_name}
                   </span>
                 </button>
@@ -170,7 +173,7 @@ export default function LocationPicker({
 
           {isSearching && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-xl p-3 shadow-xl z-50 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" /> กำลังค้นหาสถานที่...
+              <Loader2 className="w-4 h-4 animate-spin text-primary" /> กำลังค้นหาตำแหน่งบน Longdo Map...
             </div>
           )}
         </div>
@@ -181,7 +184,7 @@ export default function LocationPicker({
           onClick={handleGetGps}
           disabled={isGettingGps}
           variant="outline"
-          className="gap-2 shrink-0 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary hover:text-primary font-medium"
+          className="gap-2 shrink-0 bg-primary/5 hover:bg-primary/10 border-primary/30 text-primary hover:text-primary font-bold rounded-xl h-10 px-4"
         >
           {isGettingGps ? (
             <>
@@ -191,23 +194,33 @@ export default function LocationPicker({
           ) : (
             <>
               <Navigation className="w-4 h-4" />
-              ตำแหน่งปัจจุบัน (GPS)
+              ดึงตำแหน่ง GPS
             </>
           )}
         </Button>
       </div>
 
+      {/* Desktop Wi-Fi GPS Explanation Note */}
+      <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-600 dark:text-blue-400 flex items-start gap-2">
+        <Info className="w-4 h-4 shrink-0 mt-0.5" />
+        <p className="leading-relaxed">
+          <strong>คำแนะนำในการปักหมุด:</strong> หากใช้งานบนคอมพิวเตอร์/โน้ตบุ๊ก สัญญาณอินเทอร์เน็ตอาจอ้างอิงพิกัดกลางเมืองหรือเสาโหนด ISP ของค่ายเน็ต
+          <br />
+          คุณสามารถ<strong>พิมพ์ชื่อสถานที่/ซอย</strong>ในช่องค้นหาด้านบน หรือ<strong>แตะลงบนแผนที่</strong>ตรงจุดจริงได้ทันทีครับ
+        </p>
+      </div>
+
       {/* Preset shortcut chips */}
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
-        <span className="text-muted-foreground flex items-center gap-1 mr-1">
-          <Building2 className="w-3.5 h-3.5" /> ทางลัด:
+        <span className="text-muted-foreground flex items-center gap-1 mr-1 font-medium">
+          <Building2 className="w-3.5 h-3.5" /> ย้ายไปยัง:
         </span>
         {PRESET_LOCATIONS.map((preset) => (
           <button
             key={preset.name}
             type="button"
             onClick={() => handleSelectLocation({ lat: preset.lat, lng: preset.lng }, preset.name)}
-            className="px-2.5 py-1 rounded-full bg-muted hover:bg-primary/20 hover:text-primary transition-all text-muted-foreground border border-border"
+            className="px-2.5 py-1 rounded-full bg-muted/60 hover:bg-primary/20 hover:text-primary transition-all text-muted-foreground border border-border text-[11px] font-medium"
           >
             {preset.name}
           </button>
@@ -218,7 +231,7 @@ export default function LocationPicker({
       <div className="relative rounded-2xl overflow-hidden border shadow-inner">
         <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium text-foreground border shadow-md flex items-center gap-1.5 pointer-events-none">
           <Compass className="w-3.5 h-3.5 text-primary" />
-          🇹🇭 บังคับปักหมุดในประเทศไทยเท่านั้น
+          แตะบนแผนที่เพื่อเลือกจุดเกิดเหตุ
         </div>
 
         <MapView
@@ -228,7 +241,7 @@ export default function LocationPicker({
           onMapClick={(loc) => handleSelectLocation(loc)}
           selectedLocation={value}
           interactive
-          className="h-[360px]"
+          className="h-[380px]"
         />
       </div>
 
@@ -240,12 +253,12 @@ export default function LocationPicker({
               <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">
-                  ปักหมุดเรียบร้อย
+                  ตำแหน่งที่เลือก (ปักหมุดแล้ว)
                 </h4>
-                <p className="text-sm font-medium text-foreground mt-0.5">
+                <p className="text-sm font-bold text-foreground mt-0.5">
                   {isReverseGeocoding ? (
                     <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> กำลังค้นหาชื่อสถานที่...
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> กำลังแปลงพิกัดเป็นชื่อสถานที่ภาษาไทย...
                     </span>
                   ) : (
                     addressName || "ระบุพิกัดแล้ว"
@@ -263,15 +276,15 @@ export default function LocationPicker({
               onClick={handleGetGps}
               className="text-xs text-muted-foreground hover:text-foreground shrink-0"
             >
-              ย้ายไปยัง GPS
+              ดึง GPS อีกครั้ง
             </Button>
           </div>
         </div>
       ) : (
         <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2">
-          <MapPin className="w-4 h-4 shrink-0 animate-bounce" />
+          <MapPin className="w-4 h-4 shrink-0 animate-bounce text-amber-500" />
           <span>
-            กรุณาแตะบนแผนที่ หรือกดปุ่ม <strong>"ตำแหน่งปัจจุบัน (GPS)"</strong> เพื่อเลือกพิกัด
+            กรุณา<strong>พิมพ์ชื่อสถานที่ด้านบน</strong> หรือ<strong>แตะเลือกตำแหน่งบนแผนที่</strong>
           </span>
         </div>
       )}
