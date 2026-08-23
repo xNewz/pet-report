@@ -42,6 +42,7 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<ReportFormData>({
     type: "emergency",
@@ -457,7 +458,7 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
                       <img
                         src={formData.imageBase64}
                         alt="Preview"
-                        className="w-full h-44 object-cover rounded-xl border border-border shadow-xs"
+                        className="w-full h-48 object-cover rounded-xl border border-border shadow-xs"
                       />
                       <Button
                         type="button"
@@ -474,20 +475,37 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
                       </Button>
                     </div>
 
-                    {/* {compressionStats && (
+                    {compressionStats && (
                       <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/25 text-xs text-green-600 dark:text-green-400 space-y-0.5 text-left">
                         <p className="font-bold flex items-center gap-1.5">
                           <Zap className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-                          บีบอัดรูปภาพแล้ว (ประหยัดพื้นที่{(100 - (compressionStats.compressedSize / compressionStats.originalSize) * 100).toFixed(1)}%)
+                          บีบอัดรูปภาพเรียบร้อย (ประหยัดพื้นที่{(100 - (compressionStats.compressedSize / compressionStats.originalSize) * 100).toFixed(1)}%)
                         </p>
                         <p className="text-[11px] opacity-90 pl-5">
                           จาก {formatBytes(compressionStats.originalSize)} เหลือเพียง <strong>{formatBytes(compressionStats.compressedSize)}</strong> (ความละเอียด HD 1200px คมชัดเท่าเดิม)
                         </p>
                       </div>
-                    )} */}
-                    <p className="text-xs text-muted-foreground">
-                      คลิกที่รูปเพื่อเปลี่ยนเป็นรูปอื่น
-                    </p>
+                    )}
+                    <div className="flex justify-center gap-2 pt-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="text-xs gap-1.5 rounded-lg"
+                      >
+                        <Camera className="w-3.5 h-3.5 text-primary" /> ถ่ายใหม่
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-xs gap-1.5 rounded-lg"
+                      >
+                        <ImageIcon className="w-3.5 h-3.5 text-primary" /> เปลี่ยนรูปภาพ
+                      </Button>
+                    </div>
                   </div>
                 ) : isCompressing ? (
                   <div className="py-8 flex flex-col items-center justify-center space-y-2">
@@ -500,20 +518,46 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
                     </p>
                   </div>
                 ) : (
-                  <>
-                    <ImageIcon className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm font-semibold text-foreground">
-                      คลิกเพื่อเลือกรูปภาพสัตว์
+                  <div className="py-4 space-y-4">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      เลือกวิธีแนบรูปภาพสัตว์จรจัด:
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ⚡ ระบบจะบีบอัดเป็น WebP (HD 1200px) ให้อัตโนมัติ ประหยัดพื้นที่ 90%+ โดยภาพยังคมชัด
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                      <Button
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="w-full sm:w-auto gap-2 bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-primary/90 hover:to-orange-600 text-white font-bold rounded-xl h-11 px-6 shadow-md shadow-primary/20 transition-all hover:scale-105"
+                      >
+                        <Camera className="w-4 h-4" /> ถ่ายรูปจากกล้องสด
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full sm:w-auto gap-2 border-border font-semibold rounded-xl h-11 px-6 hover:bg-muted"
+                      >
+                        <ImageIcon className="w-4 h-4 text-primary" /> เลือกจากคลังภาพ
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-2">
+                      ⚡ ระบบจะบีบอัดเป็น WebP (HD 1200px) ให้อัตโนมัติ ประหยัดพื้นที่ 90%+ ภาพคมชัด
                     </p>
-                  </>
+                  </div>
                 )}
+
+                {/* Hidden File Inputs */}
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
                   className="hidden"
                   onChange={handleImageChange}
                 />
