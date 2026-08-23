@@ -8,7 +8,7 @@ import RadiusSearch from "@/components/map/RadiusSearch";
 import StatsBar from "@/components/ui/StatsBar";
 import ReportDetail from "@/components/reports/ReportDetail";
 import ReportList from "@/components/reports/ReportList";
-import { Report } from "@/lib/types";
+import { Report, Location } from "@/lib/types";
 import { filterByRadius } from "@/utils/geo";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -22,7 +22,6 @@ import {
   PawPrint,
   Map,
   Compass,
-  ArrowDown,
   Navigation,
 } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
@@ -33,10 +32,14 @@ export default function HomePage() {
   const [radiusKm, setRadiusKm] = useState(3);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [mobileTab, setMobileTab] = useState<"map" | "list">("map");
+  
+  // Custom searched or clicked map center
+  const [customCenter, setCustomCenter] = useState<Location | null>(null);
+  const activeCenter = customCenter || effectiveLocation;
 
   const filteredReports = useMemo(
-    () => filterByRadius(reports, effectiveLocation, radiusKm),
-    [reports, effectiveLocation, radiusKm]
+    () => filterByRadius(reports, activeCenter, radiusKm),
+    [reports, activeCenter, radiusKm]
   );
 
   const stats = useStats(reports);
@@ -97,7 +100,7 @@ export default function HomePage() {
                 <CuteCatIcon className="w-4 h-4 text-primary" /> ประกาศรับอุปการะ
               </span>
               <span className="flex items-center gap-1.5 bg-card border px-3 py-1.5 rounded-full shadow-xs">
-                <CutePawIcon className="w-4 h-4 text-primary" /> แจ้งเตือนตามพิกัด GPS
+                <CutePawIcon className="w-4 h-4 text-primary" /> แจ้งเตือนตามพิกัด Longdo Map
               </span>
             </div>
           </div>
@@ -116,10 +119,10 @@ export default function HomePage() {
           <div>
             <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
               <Compass className="w-6 h-6 text-primary" />
-              แผนที่สัตว์จรจัดรอบตัวคุณ
+              แผนที่สัตว์จรจัดรอบตัวคุณ (Longdo Map)
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              ค้นหาและตรวจสอบจุดที่มีสัตว์จรจัดบาดเจ็บหรือรอรับการช่วยเหลือในรัศมีใกล้เคียง
+              พิมพ์ค้นหาพื้นที่/ซอย หรือแตะบนแผนที่เพื่อเปลี่ยนจุดศูนย์กลางการค้นหาในรัศมี
             </p>
           </div>
 
@@ -163,7 +166,13 @@ export default function HomePage() {
             <RadiusSearch
               radiusKm={radiusKm}
               onRadiusChange={setRadiusKm}
-              onUseCurrentLocation={requestLocation}
+              onUseCurrentLocation={() => {
+                setCustomCenter(null);
+                requestLocation();
+              }}
+              onLocationSelect={(loc) => {
+                setCustomCenter(loc);
+              }}
               resultCount={filteredReports.length}
               loading={geoLoading}
             />
@@ -174,10 +183,7 @@ export default function HomePage() {
                 <CardTitle className="text-sm font-bold flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <List className="h-4 w-4 text-primary" />
-                    รายการล่าสุดในรัศมี
-                  </span>
-                  <span className="text-xs text-muted-foreground font-normal">
-                    {radiusKm} กม.
+                    รายการในรัศมี {radiusKm} กม.
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -238,7 +244,7 @@ export default function HomePage() {
                     <Search className="h-8 w-8 mb-2 opacity-20" />
                     <p className="text-xs font-medium">ไม่พบรายการในรัศมี {radiusKm} กม.</p>
                     <p className="text-[11px] text-muted-foreground/70 mt-1">
-                      ลองขยายระยะทางในแถบปรับรัศมีด้านบน
+                      ลองพิมพ์ค้นหาพื้นที่อื่นหรือขยายรัศมีในแถบด้านบน
                     </p>
                   </div>
                 )}
@@ -257,25 +263,30 @@ export default function HomePage() {
               <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none gap-2">
                 <div className="bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-foreground border shadow-sm flex items-center gap-1.5 pointer-events-auto">
                   <Map className="w-3.5 h-3.5 text-primary" />
-                  พบ {filteredReports.length} รายการในแผนที่
+                  พบ {filteredReports.length} รายการในรัศมี {radiusKm} กม.
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={requestLocation}
+                  onClick={() => {
+                    setCustomCenter(null);
+                    requestLocation();
+                  }}
                   disabled={geoLoading}
                   className="pointer-events-auto bg-background/90 backdrop-blur-md text-xs font-semibold h-8 rounded-full border shadow-sm gap-1 hover:bg-background"
                 >
                   <Navigation className="w-3.5 h-3.5 text-primary" />
-                  <span className="hidden sm:inline">รีเซ็ตไปยังพิกัดฉัน</span>
+                  <span className="hidden sm:inline">รีเซ็ตพิกัด GPS</span>
                 </Button>
               </div>
 
               <MapView
                 reports={filteredReports}
-                center={effectiveLocation}
+                center={activeCenter}
                 radiusKm={radiusKm}
-                selectedLocation={effectiveLocation}
+                selectedLocation={activeCenter}
+                onMapClick={(loc) => setCustomCenter(loc)}
+                interactive
                 className="h-[480px] sm:h-[550px] lg:h-[620px]"
               />
             </div>
@@ -309,7 +320,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : (
-          <ReportList reports={reports} userLocation={effectiveLocation} />
+          <ReportList reports={reports} userLocation={activeCenter} />
         )}
       </section>
 
@@ -318,7 +329,7 @@ export default function HomePage() {
         report={selectedReport}
         open={!!selectedReport}
         onClose={() => setSelectedReport(null)}
-        userLocation={effectiveLocation}
+        userLocation={activeCenter}
       />
     </div>
   );
