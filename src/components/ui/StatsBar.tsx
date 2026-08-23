@@ -13,6 +13,7 @@ function AnimatedNumber({ value, delay = 0 }: { value: number; delay?: number })
   const [displayed, setDisplayed] = useState(0);
 
   useEffect(() => {
+    let mounted = true;
     const timeout = setTimeout(() => {
       const duration = 1000;
       const steps = 30;
@@ -20,16 +21,23 @@ function AnimatedNumber({ value, delay = 0 }: { value: number; delay?: number })
       let current = 0;
       const interval = setInterval(() => {
         current += increment;
+        if (!mounted) {
+          clearInterval(interval);
+          return;
+        }
         if (current >= value) {
-          setDisplayed(value);
+          if (mounted) setDisplayed(value);
           clearInterval(interval);
         } else {
-          setDisplayed(Math.floor(current));
+          if (mounted) setDisplayed(Math.floor(current));
         }
       }, duration / steps);
-      return () => clearInterval(interval);
     }, delay);
-    return () => clearTimeout(timeout);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+    };
   }, [value, delay]);
 
   return <span className="animate-count-up">{displayed}</span>;

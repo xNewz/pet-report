@@ -65,11 +65,14 @@ export function useGeolocation() {
   }, []);
 
   useEffect(() => {
-    // Check permission state
+    let isMounted = true;
+    if (typeof window === "undefined") return;
+
     if (navigator.permissions) {
       navigator.permissions
         .query({ name: "geolocation" })
         .then((result) => {
+          if (!isMounted) return;
           setState((prev) => ({ ...prev, permissionState: result.state }));
           if (result.state === "granted" || result.state === "prompt") {
             requestLocation();
@@ -82,11 +85,15 @@ export function useGeolocation() {
           }
         })
         .catch(() => {
-          requestLocation();
+          if (isMounted) requestLocation();
         });
     } else {
       requestLocation();
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [requestLocation]);
 
   return {
