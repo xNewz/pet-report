@@ -20,6 +20,7 @@ import {
   searchLocations,
   LocationSearchResult,
   DEFAULT_CENTER,
+  isWithinThailand,
 } from "@/utils/geo";
 
 interface LocationPickerProps {
@@ -58,6 +59,10 @@ export default function LocationPicker({
   }, [initialAddress]);
 
   const handleSelectLocation = async (loc: Location, explicitName?: string) => {
+    if (!isWithinThailand(loc)) {
+      alert("กรุณาปักหมุดตำแหน่งภายในประเทศไทยเท่านั้น");
+      return;
+    }
     let name = explicitName || "";
     if (!name) {
       setIsReverseGeocoding(true);
@@ -77,6 +82,11 @@ export default function LocationPicker({
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (!isWithinThailand(loc)) {
+          setIsGettingGps(false);
+          alert("ตำแหน่ง GPS ของคุณอยู่นอกประเทศไทย ระบบจำกัดให้ใช้ตำแหน่งภายในประเทศไทยเท่านั้น");
+          return;
+        }
         await handleSelectLocation(loc);
         setIsGettingGps(false);
       },
@@ -208,7 +218,7 @@ export default function LocationPicker({
       <div className="relative rounded-2xl overflow-hidden border shadow-inner">
         <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium text-foreground border shadow-md flex items-center gap-1.5 pointer-events-none">
           <Compass className="w-3.5 h-3.5 text-primary" />
-          {value ? "แตะบนแผนที่เพื่อเปลี่ยนจุดปักหมุด" : "แตะบนแผนที่เพื่อปักหมุดตำแหน่งที่พบสัตว์"}
+          🇹🇭 บังคับปักหมุดในประเทศไทยเท่านั้น
         </div>
 
         <MapView

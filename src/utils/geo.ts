@@ -76,6 +76,32 @@ export const DEFAULT_CENTER: Location = {
 
 export const DEFAULT_ZOOM = 13;
 
+/**
+ * Bounding box coordinates for Thailand.
+ * Lat: 5.61 to 20.47
+ * Lng: 97.34 to 105.64
+ */
+export const THAILAND_BOUNDS_COORDS = {
+  minLat: 5.61,
+  maxLat: 20.47,
+  minLng: 97.34,
+  maxLng: 105.64,
+};
+
+/**
+ * Check if a given location is within Thailand boundaries.
+ */
+export function isWithinThailand(location: Location | null | undefined): boolean {
+  if (!location) return false;
+  const { lat, lng } = location;
+  return (
+    lat >= THAILAND_BOUNDS_COORDS.minLat &&
+    lat <= THAILAND_BOUNDS_COORDS.maxLat &&
+    lng >= THAILAND_BOUNDS_COORDS.minLng &&
+    lng <= THAILAND_BOUNDS_COORDS.maxLng
+  );
+}
+
 export interface LocationSearchResult {
   display_name: string;
   lat: number;

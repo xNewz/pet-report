@@ -13,9 +13,14 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Report, Location } from "@/lib/types";
-import { DEFAULT_CENTER, DEFAULT_ZOOM } from "@/utils/geo";
+import { DEFAULT_CENTER, DEFAULT_ZOOM, isWithinThailand } from "@/utils/geo";
 import { AlertTriangle, Home, MapPin } from "lucide-react";
 import { getAnimalSvgString } from "@/components/ui/AnimalIcons";
+
+const THAILAND_MAP_BOUNDS: L.LatLngBoundsExpression = [
+  [5.61, 97.34],
+  [20.47, 105.64],
+];
 
 interface MapViewProps {
   reports: Report[];
@@ -88,7 +93,11 @@ export default function MapComponent(props: MapViewProps) {
 
   // Close popup if interactive click happens
   const handleMapClick = (loc: Location) => {
-    if (props.onMapClick) props.onMapClick(loc);
+    if (isWithinThailand(loc)) {
+      if (props.onMapClick) props.onMapClick(loc);
+    } else {
+      alert("กรุณาปักหมุดตำแหน่งภายในประเทศไทยเท่านั้น");
+    }
     setSelectedReport(null);
   };
 
@@ -100,6 +109,9 @@ export default function MapComponent(props: MapViewProps) {
       <MapContainer
         center={[center.lat, center.lng]}
         zoom={zoom}
+        maxBounds={THAILAND_MAP_BOUNDS}
+        maxBoundsViscosity={1.0}
+        minZoom={5}
         style={{ width: "100%", height: "100%", zIndex: 1 }}
         ref={mapRef}
       >
