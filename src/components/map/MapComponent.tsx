@@ -116,8 +116,9 @@ export default function MapComponent(props: MapViewProps) {
         ref={mapRef}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://map.longdo.com/" target="_blank" rel="noopener noreferrer">Longdo Map</a>'
+          url="https://ms.longdo.com/mapproxy/1.0.0/tile/map_th/none/{z}/{x}/{y}.png"
+          maxNativeZoom={19}
         />
         
         <MapUpdater center={center} zoom={zoom} />

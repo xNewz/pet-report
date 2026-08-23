@@ -109,9 +109,35 @@ export interface LocationSearchResult {
 }
 
 /**
- * Reverse geocode coordinates to a readable address string using Nominatim.
+ * Reverse geocode coordinates to a Thai address using Longdo Map Address Service (with OSM fallback).
  */
 export async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  const apiKey = process.env.NEXT_PUBLIC_LONGDO_MAP_KEY || "ms.longdo.com";
+
+  try {
+    const res = await fetch(
+      `https://api.longdo.com/map/services/address?lon=${lng}&lat=${lat}&key=${apiKey}`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data && (data.subdistrict || data.district || data.province)) {
+        const parts = [
+          data.aoi || data.waterway,
+          data.road ? (data.road.startsWith("ถนน") || data.road.startsWith("ซอย") ? data.road : `ถนน${data.road}`) : "",
+          data.subdistrict ? (data.subdistrict.startsWith("แขวง") || data.subdistrict.startsWith("ตำบล") ? data.subdistrict : `แขวง${data.subdistrict}`) : "",
+          data.district ? (data.district.startsWith("เขต") || data.district.startsWith("อำเภอ") ? data.district : `เขต${data.district}`) : "",
+          data.province,
+        ].filter(Boolean);
+        if (parts.length > 0) {
+          return parts.join(", ");
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Longdo reverse geocode failed, falling back:", err);
+  }
+
+  // Fallback to OSM Nominatim
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=th`,
@@ -164,10 +190,36 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string> 
 }
 
 /**
- * Search locations by query string using Nominatim.
+ * Search locations by query string using Longdo Map Search Service (with OSM fallback).
  */
 export async function searchLocations(query: string): Promise<LocationSearchResult[]> {
   if (!query || query.trim().length < 2) return [];
+  const apiKey = process.env.NEXT_PUBLIC_LONGDO_MAP_KEY || "ms.longdo.com";
+
+  try {
+    const res = await fetch(
+      `https://api.longdo.com/map/services/search?keyword=${encodeURIComponent(
+        query
+      )}&limit=5&key=${apiKey}`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.data && Array.isArray(data.data)) {
+        const results = data.data
+          .filter((item: any) => item.lat && item.lon)
+          .map((item: any) => ({
+            display_name: [item.name, item.address].filter(Boolean).join(", "),
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+          }));
+        if (results.length > 0) return results;
+      }
+    }
+  } catch (err) {
+    console.warn("Longdo search failed, falling back:", err);
+  }
+
+  // Fallback to OSM Nominatim
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
@@ -187,7 +239,7 @@ export async function searchLocations(query: string): Promise<LocationSearchResu
       lng: parseFloat(item.lon),
     }));
   } catch (err) {
-    console.warn("Location search failed:", err);
+    console.warn("Search failed:", err);
     return [];
   }
 }
