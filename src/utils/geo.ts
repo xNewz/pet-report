@@ -114,7 +114,7 @@ export interface LocationSearchResult {
 export async function reverseGeocode(lat: number, lng: number): Promise<string> {
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=th`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=th`,
       {
         headers: {
           "User-Agent": "PetReportApp/1.0",
@@ -126,12 +126,31 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string> 
     if (data && data.display_name) {
       const addr = data.address;
       if (addr) {
+        const houseOrBuilding = addr.house_number
+          ? `${addr.house_number} `
+          : "";
+        const placeName =
+          addr.building ||
+          addr.amenity ||
+          addr.shop ||
+          addr.tourism ||
+          addr.office ||
+          "";
+        const road = addr.road || addr.pedestrian || addr.footway || "";
+        const subdistrict =
+          addr.subdistrict || addr.suburb || addr.neighbourhood || "";
+        const district =
+          addr.city_district || addr.district || addr.county || "";
+        const province = addr.city || addr.province || addr.state || "";
+
         const parts = [
-          addr.building || addr.amenity || addr.shop || addr.tourism,
-          addr.road || addr.pedestrian || addr.suburb || addr.neighbourhood,
-          addr.city_district || addr.district || addr.suburb,
-          addr.city || addr.province || addr.state,
+          placeName ? `${houseOrBuilding}${placeName}`.trim() : houseOrBuilding.trim(),
+          road,
+          subdistrict,
+          district,
+          province,
         ].filter(Boolean);
+
         if (parts.length > 0) {
           return parts.join(", ");
         }

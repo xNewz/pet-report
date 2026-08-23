@@ -96,7 +96,7 @@ export default function LocationPicker({
           "ไม่สามารถดึงตำแหน่ง GPS ได้ กรุณาอนุญาตสิทธิ์เข้าถึงตำแหน่งหรือเลือกตำแหน่งบนแผนที่"
         );
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
