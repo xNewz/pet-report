@@ -62,33 +62,36 @@ function OfficialDashboardContent() {
   const myResolved = reports.filter(r => r.status === "resolved" && r.acknowledgedBy?.uid === userProfile.uid);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-16">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-          <ClipboardList className="w-6 h-6 text-primary" />
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 animate-fade-in pb-16 px-4 sm:px-6 pt-4 sm:pt-8">
+      <div className="flex items-center gap-3 mb-4 sm:mb-8">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0">
+          <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">พื้นที่ทำงานเจ้าหน้าที่</h1>
-          <p className="text-sm text-muted-foreground">จัดการเคสและติดตามสถานะ</p>
+          <h1 className="text-xl sm:text-2xl font-bold">พื้นที่ทำงานเจ้าหน้าที่</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">จัดการเคสและติดตามสถานะ</p>
         </div>
       </div>
 
       <Tabs defaultValue="new" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="new" className="flex gap-2">
-            <AlertTriangle className="w-4 h-4" /> 
+          <TabsTrigger value="new" className="flex gap-1 sm:gap-2 px-1 sm:px-3 text-[11px] sm:text-sm">
+            <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
             <span className="hidden sm:inline">รอรับเรื่อง</span>
-            <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs ml-1">{newCases.length}</span>
+            <span className="inline sm:hidden">รอรับ</span>
+            <span className="bg-red-100 text-red-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-xs ml-0.5 sm:ml-1">{newCases.length}</span>
           </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex gap-2">
-            <ClipboardList className="w-4 h-4" /> 
+          <TabsTrigger value="tasks" className="flex gap-1 sm:gap-2 px-1 sm:px-3 text-[11px] sm:text-sm">
+            <ClipboardList className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
             <span className="hidden sm:inline">งานของฉัน</span>
-            <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-xs ml-1">{myTasks.length}</span>
+            <span className="inline sm:hidden">งานฉัน</span>
+            <span className="bg-amber-100 text-amber-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-xs ml-0.5 sm:ml-1">{myTasks.length}</span>
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex gap-2">
-            <History className="w-4 h-4" /> 
+          <TabsTrigger value="history" className="flex gap-1 sm:gap-2 px-1 sm:px-3 text-[11px] sm:text-sm">
+            <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
             <span className="hidden sm:inline">ประวัติ</span>
-            <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-xs ml-1">{myResolved.length}</span>
+            <span className="inline sm:hidden">ประวัติ</span>
+            <span className="bg-green-100 text-green-600 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-xs ml-0.5 sm:ml-1">{myResolved.length}</span>
           </TabsTrigger>
         </TabsList>
 
