@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Map, LayoutList, PlusCircle, User, AlertTriangle, ClipboardList } from "lucide-react";
+import { Map, LayoutList, PlusCircle, User, AlertTriangle, ClipboardList, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -23,6 +23,16 @@ export default function MobileBottomNav() {
       icon: LayoutList,
       exact: false,
     },
+    ...(userProfile?.role === "admin"
+      ? [
+          {
+            href: "/admin",
+            label: "แอดมิน",
+            icon: ShieldAlert,
+            exact: false,
+          },
+        ]
+      : []),
     ...(userProfile?.role === "admin" || userProfile?.role === "official"
       ? [
           {
