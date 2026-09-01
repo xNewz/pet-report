@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Report, Location } from "@/lib/types";
 import { DEFAULT_CENTER, DEFAULT_ZOOM, isWithinThailand } from "@/utils/geo";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 declare global {
   interface Window {
@@ -51,6 +52,7 @@ const loadLongdoSDK = (apiKey: string): Promise<any> => {
 };
 
 export default function MapComponent(props: MapViewProps) {
+  const { user, userProfile } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const [isMapReady, setIsMapReady] = useState(false);
@@ -241,6 +243,46 @@ export default function MapComponent(props: MapViewProps) {
             >
               🧭 นำทางไปยังพิกัดนี้ →
             </a>
+            
+            <a href="/report/${report.id}"
+               style="
+                 display: block;
+                 text-align: center;
+                 padding: 8px 12px;
+                 background: #f8fafc;
+                 color: #334155;
+                 font-size: 12px;
+                 font-weight: bold;
+                 border-radius: 10px;
+                 border: 1px solid #cbd5e1;
+                 text-decoration: none;
+                 margin-top: 6px;
+               "
+            >
+              📄 ดูรายละเอียดเต็ม
+            </a>
+            
+            ${
+              user && (user.uid === report.reporterId || userProfile?.role === "admin" || userProfile?.role === "official")
+                ? `<a href="/report/${report.id}/edit"
+                     style="
+                       display: block;
+                       text-align: center;
+                       padding: 8px 12px;
+                       background: white;
+                       color: #3b82f6;
+                       font-size: 12px;
+                       font-weight: bold;
+                       border-radius: 10px;
+                       border: 1px solid #bfdbfe;
+                       text-decoration: none;
+                       margin-top: 6px;
+                     "
+                  >
+                    ✏️ แก้ไขโพสต์
+                  </a>`
+                : ""
+            }
           </div>
         `;
 
@@ -290,7 +332,7 @@ export default function MapComponent(props: MapViewProps) {
     } catch (err) {
       console.warn("Failed to render Longdo map overlays:", err);
     }
-  }, [isMapReady, props.reports, props.selectedLocation, props.radiusKm, props.center]);
+  }, [isMapReady, props.reports, props.selectedLocation, props.radiusKm, props.center, user, userProfile]);
 
   useEffect(() => {
     updateOverlays();
