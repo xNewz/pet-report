@@ -248,6 +248,7 @@ export default function FullReportClient({
                 <Trash2 className="w-4 h-4" /> ลบ
               </Button>
             )}
+          </div>
         </div>
       </Card>
     </div>
