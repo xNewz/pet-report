@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PawPrint, AlertTriangle, User, LogOut } from "lucide-react";
+import { PawPrint, AlertTriangle, User, LogOut, ShieldAlert } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, userProfile, loginWithGoogle, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/85 backdrop-blur-xl border-b border-border/50 shadow-sm supports-[backdrop-filter]:bg-background/70">
@@ -104,6 +104,17 @@ export default function Header() {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
+                {userProfile?.role === "admin" && (
+                  <>
+                    <DropdownMenuItem
+                      className="cursor-pointer rounded-xl text-xs font-medium gap-2 py-2"
+                      onClick={() => router.push("/admin")}
+                    >
+                      <ShieldAlert className="w-4 h-4 text-primary" /> จัดการระบบ (Admin)
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem
                   className="cursor-pointer rounded-xl text-xs font-medium gap-2 py-2"
                   onClick={() => router.push("/profile")}

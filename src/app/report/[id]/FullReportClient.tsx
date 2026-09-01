@@ -25,10 +25,13 @@ export default function FullReportClient({
   reportId: string;
   initialReport: Report | null;
 }) {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const router = useRouter();
   const [report, setReport] = useState<Report | null>(initialReport);
   const [updating, setUpdating] = useState(false);
+
+  const canEdit = user && (user.uid === report?.reporterId || userProfile?.role === "admin" || userProfile?.role === "official");
+  const canDelete = user && (user.uid === report?.reporterId || userProfile?.role === "admin");
 
   useEffect(() => {
     const reportRef = doc(db, "reports", reportId);
@@ -56,7 +59,7 @@ export default function FullReportClient({
   }
 
   const handleDelete = async () => {
-    if (!user || user.uid !== report.reporterId) return;
+    if (!canDelete) return;
     if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้? (ลบแล้วไม่สามารถกู้คืนได้)")) {
       setUpdating(true);
       try {
@@ -229,24 +232,22 @@ export default function FullReportClient({
               <Share2 className="w-4 h-4" /> แชร์เคสนี้
             </Button>
 
-            {user && user.uid === report.reporterId && (
-              <>
-                {report.status === "active" && (
-                  <Button
-                    variant="outline"
-                    className="flex-1 min-w-[130px] gap-2"
-                    onClick={() => handleStatusUpdate(isEmergency ? "resolved" : "adopted")}
-                    disabled={updating}
-                  >
-                    <CheckCircle2 className="w-4 h-4" /> {isEmergency ? "ช่วยเหลือแล้ว" : "หาบ้านได้แล้ว"}
-                  </Button>
-                )}
-                <Button variant="destructive" className="flex-none gap-2" onClick={handleDelete} disabled={updating}>
-                  <Trash2 className="w-4 h-4" /> ลบ
-                </Button>
-              </>
+            {canEdit && report.status === "active" && (
+              <Button
+                variant="outline"
+                className="flex-1 min-w-[130px] gap-2 border-primary/50 text-primary hover:bg-primary/10"
+                onClick={() => handleStatusUpdate(isEmergency ? "resolved" : "adopted")}
+                disabled={updating}
+              >
+                <CheckCircle2 className="w-4 h-4" /> {isEmergency ? "ช่วยเหลือแล้ว" : "หาบ้านได้แล้ว"}
+              </Button>
             )}
-          </div>
+            
+            {canDelete && (
+              <Button variant="destructive" className="flex-none gap-2" onClick={handleDelete} disabled={updating}>
+                <Trash2 className="w-4 h-4" /> ลบ
+              </Button>
+            )}
         </div>
       </Card>
     </div>

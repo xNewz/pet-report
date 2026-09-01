@@ -7,6 +7,20 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
+    
+    function getUserRole() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : 'user';
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+    
+    function isOfficial() {
+      return isAuthenticated() && getUserRole() == 'official';
+    }
 
     // Helper function to check if the user is the owner of the document
     function isOwner(resourceData) {
@@ -21,13 +35,30 @@ service cloud.firestore {
       // And they must set reporterId to their own uid
       allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
       
-      // Only the creator can update or delete their own reports
-      allow update, delete: if isOwner(resource.data);
+      // The creator, admins, and officials can update reports
+      allow update: if isOwner(resource.data) || isAdmin() || isOfficial();
+      
+      // Only the creator and admin can delete reports
+      allow delete: if isOwner(resource.data) || isAdmin();
     }
 
     match /users/{userId} {
-      // Users can only read and write their own profile
-      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      // Users can read their own profile, admins can read all profiles
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      // Admins can create any user profile
+      // Users can create their own profile, but must default role to "user"
+      allow create: if isAuthenticated() && (
+        isAdmin() || 
+        (request.auth.uid == userId && request.resource.data.get('role', 'user') == 'user')
+      );
+      
+      // Admins can update any user profile
+      // Users can update their own profile, but cannot change their role
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        (request.auth.uid == userId && request.resource.data.get('role', 'user') == resource.data.get('role', 'user'))
+      );
     }
   }
 }

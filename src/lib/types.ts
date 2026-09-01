@@ -23,8 +23,14 @@ export interface Location {
 
 // ===== User Profile =====
 
+export type UserRole = "user" | "admin" | "official";
+
 export interface UserProfile {
   uid: string;
+  email?: string | null;
+  displayName?: string | null;
+  photoURL?: string | null;
+  role: UserRole;
   homeLocation: Location | null;
   notificationRadius: number; // in km
 }
