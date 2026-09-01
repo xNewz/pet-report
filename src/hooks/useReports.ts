@@ -181,6 +181,32 @@ export async function updateReportStatus(
 }
 
 /**
+ * Update full report (Edit).
+ */
+export async function updateFullReport(reportId: string, data: ReportFormData): Promise<void> {
+  const reportRef = doc(db, "reports", reportId);
+  const updatePayload = {
+    type: data.type,
+    category: data.category,
+    animalType: data.animalType,
+    title: data.title,
+    description: data.description,
+    location: data.location || { lat: 13.7563, lng: 100.5018 },
+    address: data.address,
+    severity: data.severity,
+    reporterName: data.reporterName,
+    contactInfo: data.contactInfo,
+    updatedAt: Date.now(),
+  } as any;
+  
+  if (data.imageBase64) {
+    updatePayload.imageUrl = data.imageBase64;
+  }
+  
+  await updateDoc(reportRef, updatePayload);
+}
+
+/**
  * Delete a report.
  */
 export async function deleteReport(reportId: string): Promise<void> {

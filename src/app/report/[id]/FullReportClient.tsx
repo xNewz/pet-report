@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone, Trash2, Share2, ArrowLeft } from "lucide-react";
+import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone, Trash2, Share2, ArrowLeft, Edit } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -241,6 +241,14 @@ export default function FullReportClient({
               >
                 <CheckCircle2 className="w-4 h-4" /> {isEmergency ? "ช่วยเหลือแล้ว" : "หาบ้านได้แล้ว"}
               </Button>
+            )}
+            
+            {canEdit && (
+              <Link href={`/report/${report.id}/edit`} className="flex-none">
+                <Button variant="outline" className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/10" disabled={updating}>
+                  <Edit className="w-4 h-4" /> แก้ไข
+                </Button>
+              </Link>
             )}
             
             {canDelete && (
