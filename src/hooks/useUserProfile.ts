@@ -26,6 +26,10 @@ export function useUserProfile() {
         // Create default profile
         const defaultProfile: UserProfile = {
           uid: user.uid,
+          email: user.email || null,
+          displayName: user.displayName || null,
+          photoURL: user.photoURL || null,
+          role: "user",
           homeLocation: null,
           notificationRadius: 5,
         };
