@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PawPrint, AlertTriangle, User, LogOut, ShieldAlert } from "lucide-react";
+import { PawPrint, AlertTriangle, User, LogOut, ShieldAlert, ClipboardList } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,17 @@ export default function Header() {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
+                {(userProfile?.role === "admin" || userProfile?.role === "official") && (
+                  <>
+                    <DropdownMenuItem
+                      className="cursor-pointer rounded-xl text-xs font-medium gap-2 py-2"
+                      onClick={() => router.push("/official")}
+                    >
+                      <ClipboardList className="w-4 h-4 text-primary" /> พื้นที่เจ้าหน้าที่
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 {userProfile?.role === "admin" && (
                   <>
                     <DropdownMenuItem
