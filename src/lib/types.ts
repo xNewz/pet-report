@@ -10,7 +10,7 @@ export type ReportCategory =
   | "sick"
   | "adoption";
 
-export type ReportStatus = "active" | "resolved" | "adopted";
+export type ReportStatus = "active" | "in_progress" | "resolved" | "adopted";
 
 export type Severity = "low" | "medium" | "high" | "critical";
 
@@ -53,6 +53,12 @@ export interface Report {
   reporterId?: string;
   reporterAvatar?: string;
   contactInfo: string;
+  acknowledgedBy?: {
+    uid: string;
+    displayName: string;
+    photoURL?: string | null;
+    timestamp: number;
+  };
   createdAt: number;
   updatedAt: number;
 }
@@ -125,7 +131,8 @@ export const CATEGORY_LABELS: Record<ReportCategory, string> = {
 };
 
 export const STATUS_LABELS: Record<ReportStatus, string> = {
-  active: "กำลังดำเนินการ",
+  active: "รอรับเรื่อง",
+  in_progress: "กำลังดำเนินการ",
   resolved: "ช่วยเหลือแล้ว",
   adopted: "หาบ้านได้แล้ว",
 };

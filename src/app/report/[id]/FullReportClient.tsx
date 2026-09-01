@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { db } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
-import { updateReportStatus, deleteReport } from "@/hooks/useReports";
+import { updateReportStatus, deleteReport, acknowledgeReport } from "@/hooks/useReports";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -32,6 +32,7 @@ export default function FullReportClient({
 
   const canEdit = user && (user.uid === report?.reporterId || userProfile?.role === "admin" || userProfile?.role === "official");
   const canDelete = user && (user.uid === report?.reporterId || userProfile?.role === "admin");
+  const canAcknowledge = userProfile?.role === "admin" || userProfile?.role === "official";
 
   useEffect(() => {
     const reportRef = doc(db, "reports", reportId);
@@ -80,6 +81,18 @@ export default function FullReportClient({
       toast.success("อัปเดตสถานะสำเร็จ");
     } catch (err) {
       toast.error("Failed to update status");
+    }
+    setUpdating(false);
+  };
+
+  const handleAcknowledge = async () => {
+    if (!userProfile) return;
+    setUpdating(true);
+    try {
+      await acknowledgeReport(report.id, userProfile);
+      toast.success("รับเรื่องสำเร็จ");
+    } catch (err) {
+      toast.error("Failed to acknowledge");
     }
     setUpdating(false);
   };
@@ -218,6 +231,32 @@ export default function FullReportClient({
             <p className="text-xs text-muted-foreground">แจ้งเมื่อ: {new Date(report.createdAt).toLocaleString("th-TH")}</p>
           </div>
 
+          {/* Acknowledged By Info */}
+          {report.acknowledgedBy && (
+            <>
+              <Separator className="bg-border" />
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold text-primary uppercase tracking-wider">เจ้าหน้าที่ผู้รับเรื่อง</h4>
+                <div className="flex items-center gap-3 bg-primary/5 p-3 rounded-xl border border-primary/20">
+                  {report.acknowledgedBy.photoURL ? (
+                    <Avatar className="w-10 h-10 border border-primary/20 shrink-0">
+                      <AvatarImage src={report.acknowledgedBy.photoURL} />
+                      <AvatarFallback><User className="w-5 h-5 text-primary" /></AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center shrink-0">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate text-primary">{report.acknowledgedBy.displayName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">รับเรื่องเมื่อ: {new Date(report.acknowledgedBy.timestamp).toLocaleString("th-TH")}</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
           <Separator className="bg-border" />
 
           {/* Actions */}
@@ -232,14 +271,24 @@ export default function FullReportClient({
               <Share2 className="w-4 h-4" /> แชร์เคสนี้
             </Button>
 
-            {canEdit && report.status === "active" && (
+            {canAcknowledge && report.status === "active" && (
+              <Button
+                className="flex-1 min-w-[130px] gap-2 bg-yellow-500 hover:bg-yellow-600 text-white shadow-md shadow-yellow-500/20"
+                onClick={handleAcknowledge}
+                disabled={updating}
+              >
+                <User className="w-4 h-4" /> รับเรื่องเคสนี้
+              </Button>
+            )}
+
+            {canEdit && (report.status === "active" || report.status === "in_progress") && (
               <Button
                 variant="outline"
                 className="flex-1 min-w-[130px] gap-2 border-primary/50 text-primary hover:bg-primary/10"
                 onClick={() => handleStatusUpdate(isEmergency ? "resolved" : "adopted")}
                 disabled={updating}
               >
-                <CheckCircle2 className="w-4 h-4" /> {isEmergency ? "ช่วยเหลือแล้ว" : "หาบ้านได้แล้ว"}
+                <CheckCircle2 className="w-4 h-4" /> {isEmergency ? "ช่วยเหลือเสร็จสิ้น" : "หาบ้านได้แล้ว"}
               </Button>
             )}
             

@@ -20,7 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { updateReportStatus, deleteReport } from "@/hooks/useReports";
+import { updateReportStatus, deleteReport, acknowledgeReport } from "@/hooks/useReports";
 import { useState } from "react";
 import { AlertTriangle, Home, MapPin, Navigation, CheckCircle2, User, Phone, Trash2, Share2 } from "lucide-react";
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
@@ -41,7 +41,7 @@ export default function ReportDetail({
   open,
   onClose,
 }: ReportDetailProps) {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [updating, setUpdating] = useState(false);
 
   if (!report) return null;
@@ -103,6 +103,22 @@ export default function ReportDetail({
     }
     setUpdating(false);
   };
+
+  const handleAcknowledge = async () => {
+    if (!userProfile) return;
+    setUpdating(true);
+    try {
+      await acknowledgeReport(report.id, userProfile);
+      toast.success("รับเรื่องสำเร็จ");
+    } catch (err) {
+      toast.error("Failed to acknowledge");
+    }
+    setUpdating(false);
+  };
+
+  const canEdit = user && (user.uid === report.reporterId || userProfile?.role === "admin" || userProfile?.role === "official");
+  const canDelete = user && (user.uid === report.reporterId || userProfile?.role === "admin");
+  const canAcknowledge = userProfile?.role === "admin" || userProfile?.role === "official";
 
   const severityColors: Record<string, string> = {
     low: "border-primary/30 text-primary",
@@ -170,8 +186,8 @@ export default function ReportDetail({
               className={
                 report.status === "active"
                   ? "bg-secondary text-secondary-foreground"
-                  : report.status === "resolved"
-                    ? "bg-primary text-primary-foreground"
+                  : report.status === "in_progress"
+                    ? "bg-amber-500 text-white"
                     : "bg-primary text-primary-foreground"
               }
             >
@@ -244,6 +260,32 @@ export default function ReportDetail({
             </p>
           </div>
 
+          {/* Acknowledged By Info */}
+          {report.acknowledgedBy && (
+            <>
+              <Separator className="bg-border" />
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold text-primary uppercase tracking-wider">เจ้าหน้าที่ผู้รับเรื่อง</h4>
+                <div className="flex items-center gap-3 bg-primary/5 p-3 rounded-xl border border-primary/20">
+                  {report.acknowledgedBy.photoURL ? (
+                    <Avatar className="w-10 h-10 border border-primary/20 shrink-0">
+                      <AvatarImage src={report.acknowledgedBy.photoURL} />
+                      <AvatarFallback><User className="w-5 h-5 text-primary" /></AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center shrink-0">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate text-primary">{report.acknowledgedBy.displayName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">รับเรื่องเมื่อ: {new Date(report.acknowledgedBy.timestamp).toLocaleString("th-TH")}</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
           <Separator className="bg-border" />
 
           {/* Actions */}
@@ -267,41 +309,49 @@ export default function ReportDetail({
               <Share2 className="w-4 h-4" /> แชร์
             </Button>
 
-            {user && user.uid === report.reporterId && (
+            {canAcknowledge && report.status === "active" && (
+              <Button
+                className="flex-1 min-w-[130px] gap-2 bg-yellow-500 hover:bg-yellow-600 text-white shadow-md shadow-yellow-500/20"
+                onClick={handleAcknowledge}
+                disabled={updating}
+              >
+                <User className="w-4 h-4" /> รับเรื่องเคสนี้
+              </Button>
+            )}
+
+            {canEdit && (report.status === "active" || report.status === "in_progress") && (
               <>
-                {report.status === "active" && (
-                  <>
-                    {isEmergency ? (
-                      <Button
-                        variant="outline"
-                        className="flex-1 min-w-[130px] gap-2"
-                        onClick={() => handleStatusUpdate("resolved")}
-                        disabled={updating}
-                      >
-                        <CheckCircle2 className="w-4 h-4" /> ช่วยเหลือแล้ว
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        className="flex-1 min-w-[130px] gap-2"
-                        onClick={() => handleStatusUpdate("adopted")}
-                        disabled={updating}
-                      >
-                        <Home className="w-4 h-4" /> หาบ้านได้แล้ว
-                      </Button>
-                    )}
-                  </>
+                {isEmergency ? (
+                  <Button
+                    variant="outline"
+                    className="flex-1 min-w-[130px] gap-2"
+                    onClick={() => handleStatusUpdate("resolved")}
+                    disabled={updating}
+                  >
+                    <CheckCircle2 className="w-4 h-4" /> ช่วยเหลือเสร็จสิ้น
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="flex-1 min-w-[130px] gap-2"
+                    onClick={() => handleStatusUpdate("adopted")}
+                    disabled={updating}
+                  >
+                    <Home className="w-4 h-4" /> หาบ้านได้แล้ว
+                  </Button>
                 )}
-                
-                <Button
-                  variant="destructive"
-                  className="flex-none gap-2"
-                  onClick={handleDelete}
-                  disabled={updating}
-                >
-                  <Trash2 className="w-4 h-4" /> ลบ
-                </Button>
               </>
+            )}
+            
+            {canDelete && (
+              <Button
+                variant="destructive"
+                className="flex-none gap-2"
+                onClick={handleDelete}
+                disabled={updating}
+              >
+                <Trash2 className="w-4 h-4" /> ลบ
+              </Button>
             )}
           </div>
         </div>

@@ -41,6 +41,7 @@ export default function ReportCard({
 
   const statusColors: Record<string, string> = {
     active: "bg-secondary text-secondary-foreground",
+    in_progress: "bg-amber-500 text-white",
     resolved: "bg-primary text-primary-foreground",
     adopted: "bg-primary text-primary-foreground",
   };

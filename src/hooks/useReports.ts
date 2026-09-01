@@ -130,10 +130,30 @@ export function useFilteredReports(
 export function useStats(reports: Report[]): Stats {
   return {
     total: reports.length,
-    active: reports.filter((r) => r.status === "active").length,
+    active: reports.filter((r) => r.status === "active" || r.status === "in_progress").length,
     resolved: reports.filter((r) => r.status === "resolved").length,
     adopted: reports.filter((r) => r.status === "adopted").length,
   };
+}
+
+/**
+ * Acknowledge report (รับเรื่อง).
+ */
+export async function acknowledgeReport(
+  reportId: string,
+  userProfile: { uid: string; displayName?: string | null; photoURL?: string | null }
+): Promise<void> {
+  const reportRef = doc(db, "reports", reportId);
+  await updateDoc(reportRef, {
+    status: "in_progress",
+    acknowledgedBy: {
+      uid: userProfile.uid,
+      displayName: userProfile.displayName || "เจ้าหน้าที่",
+      photoURL: userProfile.photoURL || null,
+      timestamp: Date.now(),
+    },
+    updatedAt: Date.now(),
+  });
 }
 
 /**
