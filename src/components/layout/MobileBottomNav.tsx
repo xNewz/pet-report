@@ -19,7 +19,7 @@ export default function MobileBottomNav() {
     },
     {
       href: "/feed",
-      label: "ฟีดรายการ",
+      label: "ฟีด",
       icon: LayoutList,
       exact: false,
     },
@@ -37,7 +37,7 @@ export default function MobileBottomNav() {
       ? [
           {
             href: "/official",
-            label: "พื้นที่ จนท.",
+            label: "จนท.",
             icon: ClipboardList,
             exact: false,
           },
@@ -59,8 +59,8 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-2 sm:px-4 pb-3 pt-1 pointer-events-none">
-      <nav className="pointer-events-auto mx-auto max-w-md bg-background/85 backdrop-blur-xl border border-border/60 shadow-2xl rounded-2xl p-1.5 flex items-center justify-between gap-1">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-1.5 sm:px-4 pb-2 pt-1 pointer-events-none">
+      <nav className="pointer-events-auto mx-auto max-w-md bg-background/85 backdrop-blur-xl border border-border/60 shadow-2xl rounded-2xl p-1 flex items-center justify-between gap-0">
         {navItems.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
@@ -85,7 +85,7 @@ export default function MobileBottomNav() {
                 className="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all text-muted-foreground hover:text-foreground"
               >
                 <item.icon className="w-5 h-5 mb-0.5" />
-                <span className="text-[10px] font-medium leading-none whitespace-nowrap">{item.label}</span>
+                <span className="text-[9px] font-medium leading-none whitespace-nowrap">{item.label}</span>
               </button>
             );
           }
@@ -114,7 +114,7 @@ export default function MobileBottomNav() {
               ) : (
                 <item.icon className="w-5 h-5 mb-0.5" />
               )}
-              <span className="text-[10px] leading-none whitespace-nowrap">{item.label}</span>
+              <span className="text-[9px] leading-none whitespace-nowrap">{item.label}</span>
             </Link>
           );
         })}
