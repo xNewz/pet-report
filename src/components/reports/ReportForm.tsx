@@ -92,24 +92,33 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
   } | null>(null);
 
   const processImageFile = async (file: File) => {
+    toast.info(`กำลังเริ่มโหลดไฟล์: ${file.size} bytes`);
     setIsCompressing(true);
     try {
+      toast.info("กำลังเรียกใช้ระบบบีบอัดภาพ...");
       const result = await compressImage(file, {
         maxWidth: 1200,
         maxHeight: 1200,
         quality: 0.78,
-        format: "image/jpeg", // Changed from WebP to JPEG for better iOS/WKWebView compatibility
+        format: "image/jpeg",
       });
+      toast.success("บีบอัดภาพสำเร็จ! กำลังนำไปแสดงผล...");
       updateField("imageBase64", result.base64);
       setCompressionStats({
         originalSize: result.originalSize,
         compressedSize: result.compressedSize,
       });
-    } catch (err) {
-      console.error("Failed to compress image:", err);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`การบีบอัดล้มเหลว: ${err?.message || "Unknown error"}`);
+      toast.info("กำลังพยายามโหลดภาพต้นฉบับแทน...");
       const reader = new FileReader();
       reader.onload = () => {
         updateField("imageBase64", reader.result as string);
+        toast.success("โหลดภาพต้นฉบับสำเร็จ");
+      };
+      reader.onerror = () => {
+        toast.error("ไม่สามารถโหลดภาพต้นฉบับได้");
       };
       reader.readAsDataURL(file);
     } finally {
@@ -121,7 +130,12 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
     const input = e.target;
     const file = input.files?.[0];
     
-    if (!file) return;
+    if (!file) {
+      toast.error("อุปกรณ์ของคุณไม่ได้ส่งข้อมูลไฟล์มาให้ (ไฟล์เป็นค่าว่าง)");
+      return;
+    }
+
+    toast.info("รับข้อมูลภาพจากอุปกรณ์แล้ว กำลังประมวลผล...");
 
     // Process the file FIRST before clearing the input value
     await processImageFile(file);
