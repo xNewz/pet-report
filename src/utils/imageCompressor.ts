@@ -34,7 +34,7 @@ export async function compressImage(
   const compressionOptions = {
     maxSizeMB: 1.5, // Conservative limit, we primarily want dimension reduction
     maxWidthOrHeight,
-    useWebWorker: true,
+    useWebWorker: false, // Disabled: Web Workers often fail silently in iOS Chrome (WKWebView)
     fileType: format,
     initialQuality: quality,
     alwaysKeepResolution: false,
