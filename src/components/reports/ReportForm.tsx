@@ -565,44 +565,31 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
                         เลือกวิธีแนบรูปภาพสัตว์จรจัด:
                       </p>
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                        <Button
-                          type="button"
-                          onClick={() => cameraInputRef.current?.click()}
-                          className="w-full sm:w-auto gap-2 bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-primary/90 hover:to-orange-600 text-white font-bold rounded-xl h-11 px-6 shadow-md shadow-primary/20 transition-all hover:scale-105"
-                        >
+                        <label className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-primary via-orange-500 to-amber-500 hover:from-primary/90 hover:to-orange-600 text-white font-bold rounded-xl h-11 px-6 shadow-md shadow-primary/20 transition-all hover:scale-105 cursor-pointer">
                           <Camera className="w-4 h-4" /> ถ่ายรูปจากกล้องสด
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full sm:w-auto gap-2 border-border font-semibold rounded-xl h-11 px-6 hover:bg-muted"
-                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        <label className="w-full sm:w-auto flex items-center justify-center gap-2 border border-border font-semibold rounded-xl h-11 px-6 hover:bg-muted cursor-pointer text-foreground">
                           <ImageIcon className="w-4 h-4 text-primary" /> เลือกจากคลังภาพ
-                        </Button>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                        </label>
                       </div>
                       <p className="text-[11px] text-muted-foreground mt-2">
                         ⚡ ระบบจะบีบอัดเป็น WebP (HD 1200px) ให้อัตโนมัติ ประหยัดพื้นที่ 90%+ ภาพคมชัด
                       </p>
                     </div>
                   )}
-
-                  {/* Hidden File Inputs */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                  <input
-                    ref={cameraInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
                 </div>
               </div>
 
