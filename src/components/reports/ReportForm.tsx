@@ -116,38 +116,18 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
     }
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    // Reset input value so the same file/camera can be re-selected
-    e.target.value = "";
-    if (!file) return;
-    await processImageFile(file);
-  };
-
-  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target;
     const file = input.files?.[0];
-    // Reset input value so re-taking a photo fires onChange again
-    input.value = "";
+    
+    if (!file) return;
 
-    if (!file) {
-      console.warn("Camera capture: no file received");
-      return;
-    }
-
-    // Some mobile browsers return a file with size 0 briefly; wait and check
-    if (file.size === 0) {
-      console.warn("Camera capture: file has 0 bytes, possibly not ready");
-      return;
-    }
-
-    // Validate it's actually an image
-    if (!file.type && !file.name) {
-      console.warn("Camera capture: file has no type or name");
-      return;
-    }
-
+    // Process the file FIRST before clearing the input value
     await processImageFile(file);
+    
+    // Clear the input value AFTER processing so the same file can be selected again
+    // and to avoid invalidating the File reference on mobile browsers during read.
+    input.value = "";
   };
 
   const handleSubmit = async () => {
@@ -597,7 +577,7 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={handleImageChange}
+                    onChange={handleFileChange}
                   />
                   <input
                     ref={cameraInputRef}
@@ -605,7 +585,7 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
                     accept="image/*"
                     capture="environment"
                     className="hidden"
-                    onChange={handleCameraCapture}
+                    onChange={handleFileChange}
                   />
                 </div>
               </div>
