@@ -90,10 +90,7 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
     compressedSize: number;
   } | null>(null);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processImageFile = async (file: File) => {
     setIsCompressing(true);
     try {
       const result = await compressImage(file, {
@@ -117,6 +114,40 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
     } finally {
       setIsCompressing(false);
     }
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // Reset input value so the same file/camera can be re-selected
+    e.target.value = "";
+    if (!file) return;
+    await processImageFile(file);
+  };
+
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    // Reset input value so re-taking a photo fires onChange again
+    input.value = "";
+
+    if (!file) {
+      console.warn("Camera capture: no file received");
+      return;
+    }
+
+    // Some mobile browsers return a file with size 0 briefly; wait and check
+    if (file.size === 0) {
+      console.warn("Camera capture: file has 0 bytes, possibly not ready");
+      return;
+    }
+
+    // Validate it's actually an image
+    if (!file.type && !file.name) {
+      console.warn("Camera capture: file has no type or name");
+      return;
+    }
+
+    await processImageFile(file);
   };
 
   const handleSubmit = async () => {
@@ -574,7 +605,7 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
                     accept="image/*"
                     capture="environment"
                     className="hidden"
-                    onChange={handleImageChange}
+                    onChange={handleCameraCapture}
                   />
                 </div>
               </div>
