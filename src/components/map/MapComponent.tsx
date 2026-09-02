@@ -5,6 +5,7 @@ import { Report, Location } from "@/lib/types";
 import { DEFAULT_CENTER, DEFAULT_ZOOM, isWithinThailand } from "@/utils/geo";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 declare global {
   interface Window {
@@ -102,7 +103,7 @@ export default function MapComponent(props: MapViewProps) {
                   if (isWithinThailand(targetLoc)) {
                     currentProps.onMapClick(targetLoc);
                   } else {
-                    alert("กรุณาปักหมุดตำแหน่งภายในประเทศไทยเท่านั้น");
+                    toast.warning("กรุณาปักหมุดตำแหน่งภายในประเทศไทยเท่านั้น");
                   }
                 }
               }

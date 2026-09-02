@@ -149,10 +149,11 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
         onSuccess?.();
       }, 2000);
     } catch (err) {
-      console.error("Failed to submit report:", err);
-      alert("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่");
+      console.error(err);
+      toast.error("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const canNext = () => {

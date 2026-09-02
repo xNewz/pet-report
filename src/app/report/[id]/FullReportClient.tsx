@@ -59,19 +59,32 @@ export default function FullReportClient({
     );
   }
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!canDelete) return;
-    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้? (ลบแล้วไม่สามารถกู้คืนได้)")) {
-      setUpdating(true);
-      try {
-        await deleteReport(report.id);
-        toast.success("ลบโพสต์สำเร็จ");
-        router.push("/");
-      } catch (err) {
-        toast.error("เกิดข้อผิดพลาดในการลบโพสต์");
-        setUpdating(false);
-      }
-    }
+    
+    toast("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้?", {
+      description: "ลบแล้วไม่สามารถกู้คืนได้",
+      action: {
+        label: "ยืนยันลบ",
+        onClick: async () => {
+          setUpdating(true);
+          try {
+            await deleteReport(report.id);
+            toast.success("ลบโพสต์สำเร็จ");
+            router.push("/");
+          } catch (err: any) {
+            console.error("Failed to delete report:", err);
+            toast.error(`ลบไม่ได้: ${err?.message || "Unknown Error"}`);
+          } finally {
+            setUpdating(false);
+          }
+        },
+      },
+      cancel: {
+        label: "ยกเลิก",
+        onClick: () => {},
+      },
+    });
   };
 
   const handleStatusUpdate = async (status: ReportStatus) => {

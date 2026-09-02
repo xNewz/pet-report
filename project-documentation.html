@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เอกสารโครงงาน — Community Stray Pet Watch</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --primary: #f97316;
+      --primary-light: #fff7ed;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --bg: #ffffff;
+      --code-bg: #f8fafc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Prompt', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.8;
+      font-size: 14px;
+      padding: 0;
+    }
+
+    @media print {
+      body { padding: 0; font-size: 12px; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none !important; }
+      section { break-inside: avoid; }
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 32px;
+    }
+
+    /* Cover Page */
+    .cover {
+      text-align: center;
+      padding: 100px 40px 60px;
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+    .cover .logo {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--primary), #fbbf24);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+    .cover h1 { font-size: 32px; font-weight: 800; color: var(--text); }
+    .cover h2 { font-size: 20px; font-weight: 600; color: var(--primary); }
+    .cover .subtitle { color: var(--text-light); font-size: 16px; margin-top: 8px; }
+    .cover .meta { color: var(--text-light); font-size: 13px; margin-top: 40px; line-height: 2.2; }
+
+    /* Headings */
+    h1 { font-size: 26px; font-weight: 800; margin-bottom: 12px; color: var(--text); }
+    h2 {
+      font-size: 20px; font-weight: 700;
+      color: var(--primary); margin: 32px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    h3 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+    h4 { font-size: 14px; font-weight: 600; margin: 12px 0 4px; color: var(--text-light); }
+
+    p { margin-bottom: 10px; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--primary-light);
+      font-weight: 600;
+      color: var(--text);
+    }
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* Code */
+    code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 12px;
+      margin: 10px 0 16px;
+      font-family: 'Consolas', monospace;
+      line-height: 1.6;
+    }
+
+    /* List */
+    ul, ol { margin: 6px 0 14px 20px; }
+    li { margin-bottom: 4px; }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: #f0fdf4; color: #16a34a; }
+    .badge-blue { background: #eff6ff; color: #2563eb; }
+    .badge-red { background: #fef2f2; color: #dc2626; }
+    .badge-amber { background: #fffbeb; color: #d97706; }
+
+    /* Callout */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-light);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    /* Diagram box */
+    .diagram {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+      text-align: center;
+      background: #fafafa;
+    }
+    .diagram .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .diagram .flow .box {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+    .diagram .flow .arrow { font-size: 18px; color: var(--primary); }
+
+    .toc { margin: 20px 0 40px; }
+    .toc a { text-decoration: none; color: var(--text); display: block; padding: 6px 0; border-bottom: 1px dotted var(--border); }
+    .toc a:hover { color: var(--primary); }
+    .toc .num { color: var(--primary); font-weight: 600; margin-right: 8px; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ========== COVER PAGE ========== -->
+<div class="cover">
+  <div class="logo">🐾</div>
+  <h1>Community Stray Pet Watch</h1>
+  <h2>แพลตฟอร์มแจ้งจุดสัตว์จรจัดในชุมชน</h2>
+  <p class="subtitle">เอกสารรายละเอียดโครงงาน (Project Documentation)</p>
+  <div class="meta">
+    เวอร์ชัน: 0.1.0<br>
+    เทคโนโลยีหลัก: Next.js 16 · React 19 · Firebase · Longdo Map<br>
+    วันที่จัดทำ: 1 กันยายน 2569
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== TABLE OF CONTENTS ========== -->
+<div class="container">
+  <h1>📑 สารบัญ (Table of Contents)</h1>
+  <div class="toc">
+    <a href="#ch1"><span class="num">1</span> ภาพรวมโครงงาน (Project Overview)</a>
+    <a href="#ch2"><span class="num">2</span> Technology Stack ที่ใช้</a>
+    <a href="#ch3"><span class="num">3</span> โครงสร้างโปรเจกต์ (Project Structure)</a>
+    <a href="#ch4"><span class="num">4</span> ฐานข้อมูล (Database Schema)</a>
+    <a href="#ch5"><span class="num">5</span> ระบบ Authentication & User Roles</a>
+    <a href="#ch6"><span class="num">6</span> สิทธิ์การเข้าถึง (Authorization Matrix)</a>
+    <a href="#ch7"><span class="num">7</span> รายละเอียดแต่ละหน้าของเว็บไซต์</a>
+    <a href="#ch8"><span class="num">8</span> ระบบ Components หลัก</a>
+    <a href="#ch9"><span class="num">9</span> Workflow การทำงานของระบบ</a>
+    <a href="#ch10"><span class="num">10</span> ระบบการแจ้งเตือน (Notification System)</a>
+    <a href="#ch11"><span class="num">11</span> Firestore Security Rules</a>
+    <a href="#ch12"><span class="num">12</span> ฟีเจอร์เด่นของระบบ</a>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 1 ========== -->
+<div class="container">
+  <h1 id="ch1">1. ภาพรวมโครงงาน (Project Overview)</h1>
+
+  <h3>ชื่อโครงงาน</h3>
+  <p><strong>Community Stray Pet Watch</strong> — แพลตฟอร์มแจ้งจุดสัตว์จรจัดป่วย/ดุร้าย และหาบ้านเพื่อชุมชน</p>
+
+  <h3>วัตถุประสงค์</h3>
+  <ol>
+    <li>ให้ประชาชนสามารถ <strong>แจ้งเหตุฉุกเฉิน</strong> เกี่ยวกับสัตว์จรจัดที่บาดเจ็บ ป่วย หรือดุร้าย ผ่านแผนที่แบบ Real-time</li>
+    <li>ให้ประชาชนสามารถ <strong>ประกาศหาบ้าน</strong> ให้สัตว์จรจัดที่ต้องการการดูแล</li>
+    <li>ให้ <strong>เจ้าหน้าที่</strong> สามารถรับเรื่องและติดตามสถานะการช่วยเหลือได้อย่างเป็นระบบ</li>
+    <li>ให้ <strong>ผู้ดูแลระบบ (Admin)</strong> สามารถบริหารจัดการผู้ใช้งานและโพสต์ต่าง ๆ ได้</li>
+    <li>แจ้งเตือนอัตโนมัติเมื่อมีเหตุเกิดใกล้บ้านผู้ใช้</li>
+  </ol>
+
+  <h3>กลุ่มเป้าหมาย</h3>
+  <ul>
+    <li>ประชาชนทั่วไปที่ต้องการรายงานสัตว์จรจัดหรืออยากรับเลี้ยง</li>
+    <li>เจ้าหน้าที่หน่วยงานท้องถิ่น, อาสาสมัคร, มูลนิธิช่วยเหลือสัตว์</li>
+    <li>ผู้ดูแลระบบ (Admin) สำหรับบริหารจัดการ</li>
+  </ul>
+
+  <hr>
+
+  <!-- ========== CHAPTER 2 ========== -->
+  <h1 id="ch2">2. Technology Stack ที่ใช้</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ส่วน</th>
+        <th>เทคโนโลยี</th>
+        <th>เวอร์ชัน</th>
+        <th>รายละเอียด</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Frontend Framework</strong></td>
+        <td>Next.js (App Router)</td>
+        <td>16.3.1</td>
+        <td>React-based framework สำหรับ Server-Side Rendering (SSR) และ Static Site Generation (SSG)</td>
+      </tr>
+      <tr>
+        <td><strong>UI Library</strong></td>
+        <td>React</td>
+        <td>19.2.8</td>
+        <td>Library หลักสำหรับสร้าง User Interface แบบ Component-based</td>
+      </tr>
+      <tr>
+        <td><strong>Language</strong></td>
+        <td>TypeScript</td>
+        <td>5.x</td>
+        <td>JavaScript ที่มีระบบ Type เพื่อความปลอดภัยของโค้ด</td>
+      </tr>
+      <tr>
+        <td><strong>Styling</strong></td>
+        <td>Tailwind CSS</td>
+        <td>4.x</td>
+        <td>Utility-first CSS framework สำหรับออกแบบ UI</td>
+      </tr>
+      <tr>
+        <td><strong>UI Components</strong></td>
+        <td>shadcn/ui</td>
+        <td>4.18.0</td>
+        <td>ชุด Component สำเร็จรูป (Button, Card, Dialog, Tabs, etc.)</td>
+      </tr>
+      <tr>
+        <td><strong>Icons</strong></td>
+        <td>Lucide React</td>
+        <td>1.32.0</td>
+        <td>ชุดไอคอน SVG สำหรับ React</td>
+      </tr>
+      <tr>
+        <td><strong>Database</strong></td>
+        <td>Cloud Firestore</td>
+        <td>(Firebase 12.17)</td>
+        <td>NoSQL Cloud Database แบบ Real-time จาก Google</td>
+      </tr>
+      <tr>
+        <td><strong>Authentication</strong></td>
+        <td>Firebase Auth</td>
+        <td>(Firebase 12.17)</td>
+        <td>ระบบยืนยันตัวตน รองรับ Google Sign-In</td>
+      </tr>
+      <tr>
+        <td><strong>Map</strong></td>
+        <td>Longdo Map</td>
+        <td>3.x</td>
+        <td>แผนที่ไทยสำหรับแสดงพิกัดสัตว์จรจัด, ค้นหาสถานที่, วัดรัศมี</td>
+      </tr>
+      <tr>
+        <td><strong>PWA</strong></td>
+        <td>@ducanh2912/next-pwa</td>
+        <td>10.2.9</td>
+        <td>สร้าง Progressive Web App ให้ติดตั้งบนมือถือได้</td>
+      </tr>
+      <tr>
+        <td><strong>Toast Notification</strong></td>
+        <td>Sonner</td>
+        <td>2.0.8</td>
+        <td>แสดง Notification Toast แจ้งเตือนต่าง ๆ ภายในแอป</td>
+      </tr>
+      <tr>
+        <td><strong>Fonts</strong></td>
+        <td>Google Fonts (Prompt)</td>
+        <td>—</td>
+        <td>ฟอนต์ภาษาไทย-อังกฤษ รองรับหลายน้ำหนัก</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    💡 <strong>สถาปัตยกรรมหลัก:</strong> โปรเจกต์นี้ใช้สถาปัตยกรรมแบบ <strong>Serverless</strong> โดยไม่มี Backend Server ของตัวเอง — ทุกอย่างทำงานผ่าน Firebase (Database + Auth) และ Next.js (Static/Dynamic Rendering) โดยตรง
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 3 ========== -->
+<div class="container">
+  <h1 id="ch3">3. โครงสร้างโปรเจกต์ (Project Structure)</h1>
+
+  <pre>
+pet-report/
+├── src/
+│   ├── app/                          # 🗂️ App Router Pages (Next.js)
+│   │   ├── layout.tsx                # Root Layout (Header, Footer, Providers)
+│   │   ├── page.tsx                  # หน้าแรก (แผนที่ + ฟีด)
+│   │   ├── globals.css               # Global Styles & Design Tokens
+│   │   ├── feed/
+│   │   │   └── page.tsx              # หน้าฟีดรายการทั้งหมด
+│   │   ├── report/
+│   │   │   └── page.tsx              # หน้าฟอร์มแจ้งเหตุ
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx          # หน้ารายละเอียดรายงาน (SSR)
+│   │   │       ├── FullReportClient.tsx  # Client Component ของหน้าดีเทล
+│   │   │       └── edit/
+│   │   │           └── page.tsx      # หน้าแก้ไขรายงาน
+│   │   ├── profile/
+│   │   │   └── page.tsx              # หน้าโปรไฟล์ผู้ใช้
+│   │   ├── admin/
+│   │   │   └── page.tsx              # หน้าจัดการระบบ (Admin)
+│   │   └── official/
+│   │       └── page.tsx              # หน้าพื้นที่ทำงานเจ้าหน้าที่
+│   │
+│   ├── components/                   # 🧩 Reusable Components
+│   │   ├── layout/
+│   │   │   ├── Header.tsx            # แถบเมนูด้านบน
+│   │   │   ├── Footer.tsx            # ส่วนท้าย
+│   │   │   ├── MobileBottomNav.tsx   # แถบเมนูมือถือ
+│   │   │   ├── AdminGuard.tsx        # Guard: เฉพาะ Admin
+│   │   │   └── StaffGuard.tsx        # Guard: Admin + Official
+│   │   ├── map/
+│   │   │   ├── MapComponent.tsx      # แผนที่ Longdo Map หลัก
+│   │   │   ├── MapView.tsx           # Wrapper ของ MapComponent
+│   │   │   ├── RadiusSearch.tsx      # ค้นหาตามรัศมี
+│   │   │   └── LocationPicker.tsx    # ตัวเลือกสถานที่ (ในฟอร์ม)
+│   │   ├── reports/
+│   │   │   ├── ReportCard.tsx        # การ์ดรายการ (Grid + List)
+│   │   │   ├── ReportDetail.tsx      # Popup รายละเอียด (Dialog)
+│   │   │   ├── ReportForm.tsx        # ฟอร์มแจ้งเหตุ
+│   │   │   └── ReportList.tsx        # รายการ + Filter + Sort
+│   │   ├── notifications/
+│   │   │   └── LocationNotifier.tsx  # แจ้งเตือนเมื่อมีเหตุใกล้บ้าน
+│   │   └── ui/                       # shadcn/ui Components
+│   │       ├── button.tsx, card.tsx, dialog.tsx, tabs.tsx, ...
+│   │       ├── AnimalIcons.tsx        # ไอคอนสัตว์ Custom (สุนัข, แมว, อุ้งเท้า)
+│   │       └── StatsBar.tsx           # แถบสถิติ Dashboard
+│   │
+│   ├── contexts/
+│   │   └── AuthContext.tsx           # 🔐 Context สำหรับ Auth + UserProfile
+│   │
+│   ├── hooks/
+│   │   ├── useReports.ts            # CRUD + Real-time listener สำหรับ Reports
+│   │   ├── useGeolocation.ts        # ดึงตำแหน่ง GPS ผู้ใช้
+│   │   └── useUserProfile.ts        # จัดการ Profile + ตั้งค่าแจ้งเตือน
+│   │
+│   ├── lib/
+│   │   ├── firebase.ts              # Firebase Config (App, Firestore, Auth)
+│   │   ├── types.ts                 # TypeScript Interfaces & Labels
+│   │   └── utils.ts                 # Utility functions (cn helper)
+│   │
+│   └── utils/
+│       └── geo.ts                   # คำนวณระยะทาง, กรองตามรัศมี
+│
+├── public/
+│   ├── manifest.json                # PWA Manifest
+│   └── sw.js                        # Service Worker
+│
+├── firestore.rules                  # 🛡️ Firestore Security Rules
+├── package.json
+├── next.config.ts
+└── tsconfig.json
+  </pre>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 4 ========== -->
+<div class="container">
+  <h1 id="ch4">4. ฐานข้อมูล (Database Schema)</h1>
+
+  <p>ระบบใช้ <strong>Cloud Firestore</strong> ซึ่งเป็นฐานข้อมูลแบบ <strong>NoSQL Document-based</strong> จาก Firebase โดยมี 2 Collection หลัก:</p>
+
+  <h2>4.1 Collection: <code>reports</code></h2>
+  <p>เก็บข้อมูลการแจ้งเหตุ/หาบ้านสัตว์จรจัดทั้งหมด</p>
+
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Type</th><th>คำอธิบาย</th><th>ค่าที่เป็นไปได้</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>string</td><td>รหัสเอกสาร (Auto-generated)</td><td>Firestore Document ID</td></tr>
+      <tr><td><code>type</code></td><td>string</td><td>ประเภทรายงาน</td><td><code>"emergency"</code> | <code>"adoption"</code></td></tr>
+      <tr><td><code>category</code></td><td>string</td><td>หมวดหมู่</td><td><code>"injured"</code> | <code>"aggressive"</code> | <code>"sick"</code> | <code>"adoption"</code></td></tr>
+      <tr><td><code>animalType</code></td><td>string</td><td>ชนิดสัตว์</td><td><code>"dog"</code> | <code>"cat"</code> | <code>"other"</code></td></tr>
+      <tr><td><code>title</code></td><td>string</td><td>หัวข้อรายงาน</td><td>—</td></tr>
+      <tr><td><code>description</code></td><td>string</td><td>รายละเอียด</td><td>—</td></tr>
+      <tr><td><code>imageUrl</code></td><td>string</td><td>รูปภาพ (Base64)</td><td>—</td></tr>
+      <tr><td><code>location</code></td><td>object</td><td>พิกัดสถานที่</td><td><code>{ lat: number, lng: number }</code></td></tr>
+      <tr><td><code>address</code></td><td>string</td><td>ที่อยู่ (ข้อความ)</td><td>—</td></tr>
+      <tr><td><code>status</code></td><td>string</td><td>สถานะเคส</td><td><code>"active"</code> | <code>"in_progress"</code> | <code>"resolved"</code> | <code>"adopted"</code></td></tr>
+      <tr><td><code>severity</code></td><td>string</td><td>ระดับความรุนแรง</td><td><code>"low"</code> | <code>"medium"</code> | <code>"high"</code> | <code>"critical"</code></td></tr>
+      <tr><td><code>reporterName</code></td><td>string</td><td>ชื่อผู้แจ้ง</td><td>—</td></tr>
+      <tr><td><code>reporterId</code></td><td>string</td><td>UID ผู้แจ้ง</td><td>Firebase Auth UID</td></tr>
+      <tr><td><code>reporterAvatar</code></td><td>string</td><td>รูปโปรไฟล์ผู้แจ้ง</td><td>URL</td></tr>
+      <tr><td><code>contactInfo</code></td><td>string</td><td>ข้อมูลติดต่อ</td><td>—</td></tr>
+      <tr><td><code>acknowledgedBy</code></td><td>object | null</td><td>ข้อมูลเจ้าหน้าที่ผู้รับเรื่อง</td><td><code>{ uid, displayName, photoURL, timestamp }</code></td></tr>
+      <tr><td><code>createdAt</code></td><td>number</td><td>เวลาที่สร้าง</td><td>Unix timestamp (ms)</td></tr>
+      <tr><td><code>updatedAt</code></td><td>number</td><td>เวลาที่อัพเดทล่าสุด</td><td>Unix timestamp (ms)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.2 Collection: <code>users</code></h2>
+  <p>เก็บข้อมูลโปรไฟล์ผู้ใช้งาน</p>
+
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Type</th><th>คำอธิบาย</th><th>ค่าที่เป็นไปได้</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>uid</code></td><td>string</td><td>รหัสผู้ใช้ (= Document ID)</td><td>Firebase Auth UID</td></tr>
+      <tr><td><code>email</code></td><td>string | null</td><td>อีเมล</td><td>จาก Google Account</td></tr>
+      <tr><td><code>displayName</code></td><td>string | null</td><td>ชื่อที่แสดง</td><td>จาก Google Account</td></tr>
+      <tr><td><code>photoURL</code></td><td>string | null</td><td>รูปโปรไฟล์</td><td>จาก Google Account</td></tr>
+      <tr><td><code>role</code></td><td>string</td><td>บทบาทผู้ใช้</td><td><code>"user"</code> | <code>"admin"</code> | <code>"official"</code></td></tr>
+      <tr><td><code>homeLocation</code></td><td>object | null</td><td>พิกัดบ้านผู้ใช้</td><td><code>{ lat: number, lng: number }</code></td></tr>
+      <tr><td><code>notificationRadius</code></td><td>number</td><td>รัศมีการแจ้งเตือน (กม.)</td><td>1 – 20 (default: 5)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 5 ========== -->
+<div class="container">
+  <h1 id="ch5">5. ระบบ Authentication & User Roles</h1>
+
+  <h2>5.1 การเข้าสู่ระบบ (Authentication)</h2>
+  <p>ระบบใช้ <strong>Firebase Authentication</strong> ผ่าน <strong>Google Sign-In (OAuth 2.0)</strong> เพียงวิธีเดียว เมื่อผู้ใช้ล็อกอินครั้งแรก ระบบจะสร้าง Document ใน <code>users</code> Collection โดยอัตโนมัติ กำหนด Role เริ่มต้นเป็น <code>"user"</code></p>
+
+  <h2>5.2 บทบาทผู้ใช้งาน (User Roles)</h2>
+
+  <table>
+    <thead>
+      <tr><th>บทบาท</th><th>ไอคอน</th><th>คำอธิบาย</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-green">user</span></td>
+        <td>👤</td>
+        <td>ผู้ใช้งานทั่วไป — สามารถดูแผนที่, ดูฟีด, แจ้งเหตุ, แก้ไข/ลบโพสต์ของตัวเอง, ตั้งค่าการแจ้งเตือน</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-blue">official</span></td>
+        <td>🛡️</td>
+        <td>เจ้าหน้าที่ — ทำทุกอย่างเหมือน user + กด "รับเรื่อง" เคสที่แจ้งเข้ามา + เปลี่ยนสถานะเคส + เข้าถึงหน้า Official Dashboard + แก้ไขโพสต์ได้ทุกโพสต์</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-red">admin</span></td>
+        <td>🔴</td>
+        <td>ผู้ดูแลระบบ — ทำทุกอย่างเหมือน official + เข้าหน้า Admin Dashboard จัดการ Role ผู้ใช้ + ลบโพสต์ของผู้ใช้คนอื่น</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>5.3 การป้องกันหน้าเว็บ (Route Guards)</h2>
+  <table>
+    <thead>
+      <tr><th>Guard Component</th><th>หน้าที่ป้องกัน</th><th>Role ที่อนุญาต</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>AdminGuard</code></td><td><code>/admin</code></td><td>admin เท่านั้น</td></tr>
+      <tr><td><code>StaffGuard</code></td><td><code>/official</code></td><td>admin + official</td></tr>
+    </tbody>
+  </table>
+  <p>หากผู้ใช้ที่ไม่มีสิทธิ์พยายามเข้าหน้าเหล่านี้ ระบบจะ Redirect กลับไปหน้าแรก <code>/</code> โดยอัตโนมัติ</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 6 ========== -->
+<div class="container">
+  <h1 id="ch6">6. สิทธิ์การเข้าถึง (Authorization Matrix)</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>การกระทำ</th>
+        <th>ไม่ล็อกอิน</th>
+        <th><span class="badge badge-green">user</span></th>
+        <th><span class="badge badge-blue">official</span></th>
+        <th><span class="badge badge-red">admin</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>ดูแผนที่ / ฟีด</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>ดูรายละเอียดโพสต์</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>แจ้งเหตุ (สร้างโพสต์ใหม่)</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>แก้ไขโพสต์ของตัวเอง</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>ลบโพสต์ของตัวเอง</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>แก้ไขโพสต์ของคนอื่น</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+      <tr><td>ลบโพสต์ของคนอื่น</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+      <tr><td>กดรับเรื่องเคส (Acknowledge)</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+      <tr><td>เปลี่ยนสถานะเคส</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+      <tr><td>เข้าหน้า Official Dashboard</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+      <tr><td>เข้าหน้า Admin Dashboard</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+      <tr><td>เปลี่ยน Role ผู้ใช้</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+      <tr><td>ตั้งค่าพิกัดบ้าน / รัศมีแจ้งเตือน</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 7 ========== -->
+<div class="container">
+  <h1 id="ch7">7. รายละเอียดแต่ละหน้าของเว็บไซต์</h1>
+
+  <h2>7.1 หน้าแรก — <code>/</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>Hero Banner</strong></td><td>แบนเนอร์ขนาดใหญ่ แสดงชื่อเว็บ จุดเด่น ปุ่ม CTA "แจ้งเหตุฉุกเฉิน" และ "ประกาศหาบ้าน"</td></tr>
+    <tr><td><strong>Stats Dashboard</strong></td><td>แถบสถิติแสดงจำนวนรายงานทั้งหมด, รอดำเนินการ, ช่วยเหลือแล้ว, หาบ้านได้</td></tr>
+    <tr><td><strong>แผนที่ Longdo Map</strong></td><td>แผนที่ Interactive ขนาดใหญ่แสดง Marker สัตว์จรจัดทุกตัว, วงกลมรัศมีค้นหา, Popup รายละเอียด, ค้นหาสถานที่, GPS</td></tr>
+    <tr><td><strong>ค้นหาตามรัศมี</strong></td><td>Sidebar: ปรับรัศมี (1-50 กม.), ค้นหาสถานที่, ดึง GPS, แสดงรายการใกล้เคียง</td></tr>
+    <tr><td><strong>ฟีดรายการ</strong></td><td>แสดงรายการทั้งหมดพร้อม Filter (ประเภท, สถานะ, สัตว์) + Search + Sort + Toggle Grid/List</td></tr>
+  </table>
+
+  <h2>7.2 หน้าฟีดรายการ — <code>/feed</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>Report List</strong></td><td>แสดงรายงานทั้งหมด พร้อมระบบกรอง (Filter) ตามประเภท, สถานะ, ชนิดสัตว์ และค้นหาด้วยข้อความ</td></tr>
+    <tr><td><strong>Sort Options</strong></td><td>เรียงตาม: ล่าสุด, ใกล้สุด, ด่วนที่สุด</td></tr>
+    <tr><td><strong>View Toggle</strong></td><td>สลับมุมมองระหว่าง Grid (การ์ด) และ List (รายการ)</td></tr>
+  </table>
+
+  <h2>7.3 หน้าแจ้งเหตุ — <code>/report</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>ฟอร์มแจ้งเหตุ</strong></td><td>ฟอร์ม Multi-step สำหรับกรอกข้อมูล: เลือกประเภท (ฉุกเฉิน/หาบ้าน), ชนิดสัตว์, หมวดหมู่, ความรุนแรง, อัพโหลดรูป, ปักหมุดแผนที่, กรอกรายละเอียด</td></tr>
+    <tr><td><strong>Location Picker</strong></td><td>แผนที่ Longdo Map ให้ปักหมุดจุดเกิดเหตุ พร้อมช่องค้นหาสถานที่ และ GPS</td></tr>
+    <tr><td><strong>Image Upload</strong></td><td>อัพโหลดรูปภาพ แปลงเป็น Base64 แบบ Compress ก่อนบันทึก</td></tr>
+  </table>
+
+  <h2>7.4 หน้ารายละเอียดโพสต์ — <code>/report/[id]</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>Full Report View</strong></td><td>แสดงรายละเอียดทั้งหมดแบบเต็มหน้า: รูปภาพ, หัวข้อ, คำอธิบาย, ที่อยู่, ระดับความรุนแรง, สถานะ, ข้อมูลผู้แจ้ง, แผนที่</td></tr>
+    <tr><td><strong>ปุ่มจัดการ</strong></td><td>ปุ่ม: แก้ไข (เจ้าของ/admin/official), ลบ (เจ้าของ/admin), รับเรื่อง (official/admin), เปลี่ยนสถานะ (official/admin)</td></tr>
+    <tr><td><strong>ข้อมูลเจ้าหน้าที่ผู้รับเรื่อง</strong></td><td>แสดงรูปโปรไฟล์, ชื่อ, และเวลาที่เจ้าหน้าที่กดรับเรื่อง</td></tr>
+    <tr><td><strong>Real-time Update</strong></td><td>ข้อมูลอัพเดทแบบ Real-time ผ่าน Firestore <code>onSnapshot</code></td></tr>
+  </table>
+
+  <h2>7.5 หน้าแก้ไขรายงาน — <code>/report/[id]/edit</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>Edit Form</strong></td><td>ใช้ <code>ReportForm</code> ตัวเดียวกับหน้าแจ้งเหตุ แต่โหลดข้อมูลเดิมมาเติมในฟอร์มอัตโนมัติ สามารถแก้ไขทุกฟิลด์ได้</td></tr>
+  </table>
+
+  <h2>7.6 หน้าโปรไฟล์ — <code>/profile</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>ข้อมูลส่วนตัว</strong></td><td>แสดงรูปโปรไฟล์, ชื่อ, อีเมล จาก Google Account</td></tr>
+    <tr><td><strong>ตั้งค่าการแจ้งเตือน</strong></td><td>ปักหมุด "บ้านของฉัน" บนแผนที่ + ปรับรัศมีการแจ้งเตือน (1-20 กม.)</td></tr>
+    <tr><td><strong>โพสต์ของฉัน</strong></td><td>แสดงรายการโพสต์ที่ผู้ใช้สร้างเอง</td></tr>
+    <tr><td><strong>ออกจากระบบ</strong></td><td>ปุ่ม Logout</td></tr>
+  </table>
+
+  <h2>7.7 หน้าพื้นที่เจ้าหน้าที่ — <code>/official</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>Tab: รอรับเรื่อง</strong></td><td>แสดงเคสทั้งหมดที่สถานะ <code>active</code> (ยังไม่มีใครกดรับเรื่อง) พร้อมตัวเลขจำนวน</td></tr>
+    <tr><td><strong>Tab: งานของฉัน</strong></td><td>แสดงเคสที่สถานะ <code>in_progress</code> เฉพาะที่เจ้าหน้าที่คนนี้เป็นคนกดรับเรื่อง</td></tr>
+    <tr><td><strong>Tab: ประวัติ</strong></td><td>แสดงเคสที่ <code>resolved</code> เฉพาะที่เจ้าหน้าที่คนนี้ดูแล</td></tr>
+    <tr><td><strong>Report Detail Popup</strong></td><td>คลิกการ์ดเพื่อเปิดรายละเอียด กดรับเรื่องหรือปิดเคสได้จากหน้านี้</td></tr>
+  </table>
+
+  <h2>7.8 หน้าจัดการระบบ — <code>/admin</code></h2>
+  <table>
+    <tr><th>ส่วน</th><th>คำอธิบาย</th></tr>
+    <tr><td><strong>User Management Table</strong></td><td>ตารางรายชื่อผู้ใช้ทั้งหมด แสดงรูปโปรไฟล์, ชื่อ, อีเมล, Role ปัจจุบัน</td></tr>
+    <tr><td><strong>Role Switcher</strong></td><td>Dropdown สำหรับเปลี่ยน Role ผู้ใช้ (user ↔ official ↔ admin) แบบ Real-time</td></tr>
+    <tr><td><strong>Safety Guard</strong></td><td>ป้องกัน Admin ลบสิทธิ์ตัวเอง (ไม่สามารถเปลี่ยน Role ของตัวเองจาก admin เป็นอย่างอื่น)</td></tr>
+  </table>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 8 ========== -->
+<div class="container">
+  <h1 id="ch8">8. ระบบ Components หลัก</h1>
+
+  <h2>8.1 MapComponent (Longdo Map)</h2>
+  <ul>
+    <li>แสดงแผนที่ Longdo Map ของประเทศไทย</li>
+    <li>แสดง Marker สำหรับสัตว์จรจัดแต่ละตัว ด้วยไอคอนที่แตกต่างตามประเภท</li>
+    <li>แสดง Popup HTML (ชื่อ, รูป, สถานะ, ปุ่ม "ดูรายละเอียด" / "แก้ไข") เมื่อคลิก Marker</li>
+    <li>แสดงวงกลมรัศมีค้นหา (Radius Circle)</li>
+    <li>รองรับการค้นหาสถานที่ผ่าน Longdo Map Search API</li>
+    <li>รองรับการคลิกแผนที่เพื่อเปลี่ยนจุดศูนย์กลางค้นหา</li>
+  </ul>
+
+  <h2>8.2 ReportForm (ฟอร์มแจ้งเหตุ)</h2>
+  <ul>
+    <li>รองรับ 2 โหมด: สร้างใหม่ (Create) และ แก้ไข (Edit)</li>
+    <li>ฟอร์มแบบ Multi-step: เลือกประเภท → กรอกรายละเอียด → ปักหมุด → อัพโหลดรูป → ส่ง</li>
+    <li>รองรับ Image compression ก่อนอัพโหลด</li>
+    <li>ดึงชื่อและรูปโปรไฟล์ผู้ใช้มาแนบอัตโนมัติ</li>
+  </ul>
+
+  <h2>8.3 ReportDetail (Popup รายละเอียด)</h2>
+  <ul>
+    <li>แสดงผลเป็น Dialog (Modal) ที่เด้งขึ้นมาเมื่อคลิกการ์ด</li>
+    <li>แสดงทุกข้อมูลของรายงาน: รูป, ชื่อ, คำอธิบาย, สถานะ, ความรุนแรง, ที่อยู่, ผู้แจ้ง, ข้อมูลติดต่อ</li>
+    <li>ปุ่ม "รับเรื่อง" สำหรับ Official/Admin (เปลี่ยน status active → in_progress)</li>
+    <li>ปุ่ม "เปลี่ยนสถานะ" (Resolved / Adopted)</li>
+    <li>ปุ่ม "แก้ไข" / "ลบ" (ตามสิทธิ์)</li>
+  </ul>
+
+  <h2>8.4 ReportList (รายการ + Filter)</h2>
+  <ul>
+    <li>แสดงรายการทั้งหมดแบบ Responsive (Grid / List view)</li>
+    <li>รองรับการกรอง: ประเภท, หมวดหมู่, สถานะ, ชนิดสัตว์, คำค้นหา, ระยะทางสูงสุด</li>
+    <li>รองรับการเรียงลำดับ: ล่าสุด, ใกล้สุด, ด่วนที่สุด</li>
+  </ul>
+
+  <h2>8.5 LocationNotifier (ระบบแจ้งเตือน)</h2>
+  <ul>
+    <li>ทำงานเบื้องหลัง (Background) ตรวจสอบรายงานใหม่ที่เข้ามา</li>
+    <li>เปรียบเทียบพิกัดบ้านผู้ใช้กับพิกัดรายงานใหม่</li>
+    <li>แสดง Toast แจ้งเตือนหากอยู่ภายในรัศมีที่ตั้งค่าไว้</li>
+    <li>ไม่แจ้งเตือนโพสต์ของตัวเอง / โพสต์เก่าที่โหลดครั้งแรก</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 9 ========== -->
+<div class="container">
+  <h1 id="ch9">9. Workflow การทำงานของระบบ</h1>
+
+  <h2>9.1 Flow การแจ้งเหตุ (Report Creation)</h2>
+  <div class="diagram">
+    <div class="flow">
+      <div class="box">ผู้ใช้ล็อกอิน</div>
+      <div class="arrow">→</div>
+      <div class="box">กดปุ่ม "แจ้งเหตุ"</div>
+      <div class="arrow">→</div>
+      <div class="box">กรอกฟอร์ม</div>
+      <div class="arrow">→</div>
+      <div class="box">ปักหมุดแผนที่</div>
+      <div class="arrow">→</div>
+      <div class="box">อัพโหลดรูป</div>
+      <div class="arrow">→</div>
+      <div class="box">บันทึกลง Firestore</div>
+    </div>
+  </div>
+
+  <h2>9.2 Flow สถานะเคส (Case Status)</h2>
+  <div class="diagram">
+    <div class="flow">
+      <div class="box" style="background:#fef2f2;border-color:#fca5a5;">🔴 active<br><small>รอรับเรื่อง</small></div>
+      <div class="arrow">→</div>
+      <div class="box" style="background:#fffbeb;border-color:#fde68a;">🟡 in_progress<br><small>กำลังดำเนินการ</small></div>
+      <div class="arrow">→</div>
+      <div class="box" style="background:#f0fdf4;border-color:#86efac;">🟢 resolved<br><small>ช่วยเหลือแล้ว</small></div>
+    </div>
+    <br>
+    <p style="font-size:12px;color:#64748b;">สำหรับเคส "หาบ้าน" → สถานะสุดท้ายอาจเป็น <strong>adopted</strong> (หาบ้านได้แล้ว)</p>
+  </div>
+
+  <h2>9.3 Flow การรับเรื่อง (Acknowledge)</h2>
+  <div class="diagram">
+    <div class="flow">
+      <div class="box">เจ้าหน้าที่เข้าหน้า Official Dashboard</div>
+      <div class="arrow">→</div>
+      <div class="box">ดูเคสรอรับเรื่อง</div>
+      <div class="arrow">→</div>
+      <div class="box">กด "รับเรื่อง"</div>
+      <div class="arrow">→</div>
+      <div class="box">เคสย้ายไป "งานของฉัน"</div>
+    </div>
+    <br>
+    <p style="font-size:12px;color:#64748b;">ระบบจะบันทึก UID, ชื่อ, รูปโปรไฟล์ และเวลาของเจ้าหน้าที่ผู้รับเรื่อง</p>
+  </div>
+
+  <h2>9.4 Flow การแจ้งเตือน (Notification)</h2>
+  <div class="diagram">
+    <div class="flow">
+      <div class="box">รายงานใหม่ถูกสร้าง</div>
+      <div class="arrow">→</div>
+      <div class="box">Firestore onSnapshot ตรวจจับ</div>
+      <div class="arrow">→</div>
+      <div class="box">คำนวณระยะทาง</div>
+      <div class="arrow">→</div>
+      <div class="box">อยู่ในรัศมี?</div>
+      <div class="arrow">→</div>
+      <div class="box">แสดง Toast แจ้งเตือน</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ========== CHAPTER 10 ========== -->
+  <h1 id="ch10">10. ระบบการแจ้งเตือน (Notification System)</h1>
+
+  <p>ระบบแจ้งเตือนทำงานผ่าน <strong>LocationNotifier</strong> Component ที่ทำงานเบื้องหลังในทุกหน้า:</p>
+
+  <ol>
+    <li>ผู้ใช้ตั้งค่า <strong>"บ้านของฉัน"</strong> ด้วยการปักหมุดบนแผนที่ในหน้า Profile</li>
+    <li>ผู้ใช้ตั้ง <strong>รัศมีการแจ้งเตือน</strong> (1-20 กม.) ผ่าน Slider</li>
+    <li>เมื่อมีรายงานใหม่เข้ามา ระบบจะ <strong>คำนวณระยะทาง</strong> ระหว่างพิกัดบ้านกับพิกัดรายงานใหม่โดยใช้สูตร <strong>Haversine Formula</strong></li>
+    <li>หากอยู่ภายในรัศมี → แสดง <strong>Toast Notification</strong> แจ้งชื่อเหตุการณ์และระยะทาง</li>
+  </ol>
+
+  <div class="callout">
+    ⚠️ ระบบแจ้งเตือนทำงานเฉพาะเมื่อผู้ใช้ <strong>เปิดเว็บไซต์อยู่</strong> เท่านั้น (ไม่ใช่ Push Notification จากเซิร์ฟเวอร์)
+    ระบบใช้ Firestore <code>onSnapshot</code> สำหรับ Real-time listening
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ========== CHAPTER 11 ========== -->
+<div class="container">
+  <h1 id="ch11">11. Firestore Security Rules</h1>
+
+  <p>ระบบใช้ <strong>Firestore Security Rules</strong> เพื่อป้องกันการเข้าถึงฐานข้อมูลที่ไม่ได้รับอนุญาตทั้งฝั่ง Client และ API:</p>
+
+  <h3>Collection: reports</h3>
+  <table>
+    <thead><tr><th>สิทธิ์</th><th>เงื่อนไข</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Read</strong></td><td>อนุญาตทุกคน (Public feed/map)</td></tr>
+      <tr><td><strong>Create</strong></td><td>ต้องล็อกอิน + ต้องตั้ง <code>reporterId</code> เป็น UID ของตัวเอง</td></tr>
+      <tr><td><strong>Update</strong></td><td>เจ้าของโพสต์ หรือ Admin หรือ Official</td></tr>
+      <tr><td><strong>Delete</strong></td><td>เจ้าของโพสต์ หรือ Admin เท่านั้น</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Collection: users</h3>
+  <table>
+    <thead><tr><th>สิทธิ์</th><th>เงื่อนไข</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Read</strong></td><td>ตัวเอง หรือ Admin</td></tr>
+      <tr><td><strong>Create</strong></td><td>Admin สร้างได้ทุกคน / ผู้ใช้สร้างโปรไฟล์ตัวเองได้ (role ต้องเป็น "user")</td></tr>
+      <tr><td><strong>Update</strong></td><td>Admin แก้ไขได้ทุกคน / ผู้ใช้แก้ไขตัวเองได้ แต่ <strong>ห้ามเปลี่ยน Role ตัวเอง</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    🔒 <strong>ป้องกัน Privilege Escalation:</strong> ผู้ใช้ไม่สามารถเปลี่ยน Role ตัวเองเป็น admin หรือ official ผ่าน API ได้ มีเพียง Admin เท่านั้นที่ทำได้ผ่านหน้า Admin Dashboard
+  </div>
+
+  <hr>
+
+  <!-- ========== CHAPTER 12 ========== -->
+  <h1 id="ch12">12. ฟีเจอร์เด่นของระบบ</h1>
+
+  <table>
+    <thead><tr><th>#</th><th>ฟีเจอร์</th><th>รายละเอียด</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Real-time Data</strong></td><td>ข้อมูลทุกอย่างอัพเดทแบบ Real-time ผ่าน Firestore <code>onSnapshot</code> ไม่ต้องรีเฟรชหน้า</td></tr>
+      <tr><td>2</td><td><strong>Longdo Map Integration</strong></td><td>แผนที่ไทยแบบ Interactive ค้นหาสถานที่, ปักหมุด, แสดง Marker, วงกลมรัศมี, Popup รายละเอียด</td></tr>
+      <tr><td>3</td><td><strong>Proximity-based Notification</strong></td><td>แจ้งเตือนอัตโนมัติเมื่อมีเหตุเกิดใกล้บ้าน ตามรัศมีที่ตั้งค่าไว้</td></tr>
+      <tr><td>4</td><td><strong>Role-based Access Control</strong></td><td>แบ่งสิทธิ์ 3 ระดับ (user, official, admin) ป้องกันทั้ง Frontend และ Database rules</td></tr>
+      <tr><td>5</td><td><strong>Case Tracking System</strong></td><td>ระบบติดตามเคส 4 สถานะ พร้อมบันทึกเจ้าหน้าที่ผู้รับเรื่อง</td></tr>
+      <tr><td>6</td><td><strong>PWA Support</strong></td><td>ติดตั้งเป็นแอปบนมือถือได้ผ่าน Service Worker + Web App Manifest</td></tr>
+      <tr><td>7</td><td><strong>Responsive Design</strong></td><td>รองรับทุกขนาดหน้าจอ (มือถือ, แท็บเล็ต, คอมพิวเตอร์) ด้วย Mobile-first approach</td></tr>
+      <tr><td>8</td><td><strong>Google Authentication</strong></td><td>ล็อกอินด้วย Google Account ปลอดภัย สะดวก ไม่ต้องจำรหัสผ่าน</td></tr>
+      <tr><td>9</td><td><strong>Image Compression</strong></td><td>รูปภาพถูก Compress ก่อนบันทึก ลดขนาดข้อมูล</td></tr>
+      <tr><td>10</td><td><strong>Serverless Architecture</strong></td><td>ไม่ต้องดูแล Backend Server — ลดค่าใช้จ่ายและความซับซ้อน</td></tr>
+      <tr><td>11</td><td><strong>Thai Language UI</strong></td><td>อินเทอร์เฟซภาษาไทยทั้งหมด รองรับฟอนต์ Prompt</td></tr>
+      <tr><td>12</td><td><strong>Official Dashboard</strong></td><td>พื้นที่ทำงานเฉพาะเจ้าหน้าที่ แบ่ง Tab (รอรับ / งานฉัน / ประวัติ)</td></tr>
+    </tbody>
+  </table>
+
+  <br><br>
+  <hr>
+  <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:40px;">
+    — จบเอกสาร —<br>
+    Community Stray Pet Watch © 2569 | จัดทำเพื่อประกอบโครงงาน
+  </p>
+</div>
+
+</body>
+</html>

@@ -23,6 +23,7 @@ import {
   DEFAULT_CENTER,
   isWithinThailand,
 } from "@/utils/geo";
+import { toast } from "sonner";
 
 interface LocationPickerProps {
   value: Location | null;
@@ -63,7 +64,7 @@ export default function LocationPicker({
 
   const handleSelectLocation = async (loc: Location, explicitName?: string) => {
     if (!isWithinThailand(loc)) {
-      alert("กรุณาปักหมุดตำแหน่งภายในประเทศไทยเท่านั้น");
+      toast.warning("กรุณาปักหมุดตำแหน่งภายในประเทศไทยเท่านั้น");
       return;
     }
     let name = explicitName || "";
@@ -78,7 +79,7 @@ export default function LocationPicker({
 
   const handleGetGps = () => {
     if (!navigator.geolocation) {
-      alert("เบราว์เซอร์ของคุณไม่รองรับการดึงตำแหน่ง GPS");
+      toast.error("เบราว์เซอร์ของคุณไม่รองรับการดึงตำแหน่ง GPS");
       return;
     }
     setIsGettingGps(true);
@@ -87,7 +88,7 @@ export default function LocationPicker({
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         if (!isWithinThailand(loc)) {
           setIsGettingGps(false);
-          alert("ตำแหน่ง GPS ของคุณอยู่นอกประเทศไทย ระบบจำกัดให้ใช้ตำแหน่งภายในประเทศไทยเท่านั้น");
+          toast.warning("ตำแหน่ง GPS ของคุณอยู่นอกประเทศไทย ระบบจำกัดให้ใช้ตำแหน่งภายในประเทศไทยเท่านั้น");
           return;
         }
         await handleSelectLocation(loc);
@@ -95,7 +96,7 @@ export default function LocationPicker({
       },
       (err) => {
         setIsGettingGps(false);
-        alert(
+        toast.error(
           "ไม่สามารถดึงตำแหน่ง GPS ได้ กรุณาอนุญาตสิทธิ์เข้าถึงตำแหน่งในเบราว์เซอร์ หรือใช้วิธีพิมพ์ค้นหาสถานที่ด้านบน"
         );
       },

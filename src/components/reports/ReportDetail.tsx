@@ -46,22 +46,33 @@ export default function ReportDetail({
 
   if (!report) return null;
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     const isAllowed = user && (user.uid === report.reporterId || userProfile?.role === "admin");
     if (!report || !isAllowed) return;
     
-    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้? (ลบแล้วไม่สามารถกู้คืนได้)")) {
-      setUpdating(true);
-      try {
-        await deleteReport(report.id);
-        onClose();
-      } catch (err) {
-        console.error("Failed to delete report:", err);
-        alert("เกิดข้อผิดพลาดในการลบโพสต์");
-      } finally {
-        setUpdating(false);
-      }
-    }
+    toast("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้?", {
+      description: "ลบแล้วไม่สามารถกู้คืนได้",
+      action: {
+        label: "ยืนยันลบ",
+        onClick: async () => {
+          setUpdating(true);
+          try {
+            await deleteReport(report.id);
+            toast.success("ลบโพสต์สำเร็จ");
+            onClose();
+          } catch (err) {
+            console.error("Failed to delete report:", err);
+            toast.error("เกิดข้อผิดพลาดในการลบโพสต์");
+          } finally {
+            setUpdating(false);
+          }
+        },
+      },
+      cancel: {
+        label: "ยกเลิก",
+        onClick: () => {},
+      },
+    });
   };
 
   const handleShare = async () => {
