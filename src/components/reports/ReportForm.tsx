@@ -97,7 +97,7 @@ export default function ReportForm({ onSuccess, initialData, isEdit }: ReportFor
         maxWidth: 1200,
         maxHeight: 1200,
         quality: 0.78,
-        format: "image/webp",
+        format: "image/jpeg", // Changed from WebP to JPEG for better iOS/WKWebView compatibility
       });
       updateField("imageBase64", result.base64);
       setCompressionStats({

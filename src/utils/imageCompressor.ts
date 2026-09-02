@@ -41,8 +41,16 @@ export async function compressImage(
   };
 
   try {
-    // 1. Compress the image
-    const compressedBlob = await imageCompression(file, compressionOptions);
+    // 1. Compress the image with a timeout (mobile browser safety)
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Image compression timed out")), 8000);
+    });
+
+    const compressedBlob = await Promise.race([
+      imageCompression(file, compressionOptions),
+      timeoutPromise
+    ]) as File | Blob;
+    
     const compressedSize = compressedBlob.size;
 
     // 2. Convert to Base64 (Data URL)
@@ -50,9 +58,9 @@ export async function compressImage(
 
     return { base64, originalSize, compressedSize };
   } catch (error) {
-    console.error("Error during image compression:", error);
+    console.warn("Falling back to original image due to compression error/timeout:", error);
     
-    // Fallback: return original file as base64 if compression completely fails
+    // Fallback: return original file as base64 if compression completely fails or times out
     const fallbackBase64 = await imageCompression.getDataUrlFromFile(file);
     return {
       base64: fallbackBase64,
