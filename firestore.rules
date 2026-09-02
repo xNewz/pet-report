@@ -24,7 +24,7 @@ service cloud.firestore {
 
     // Helper function to check if the user is the owner of the document
     function isOwner(resourceData) {
-      return isAuthenticated() && request.auth.uid == resourceData.reporterId;
+      return isAuthenticated() && ('reporterId' in resourceData) && request.auth.uid == resourceData.reporterId;
     }
 
     match /reports/{reportId} {
@@ -36,10 +36,10 @@ service cloud.firestore {
       allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
       
       // The creator, admins, and officials can update reports
-      allow update: if isOwner(resource.data) || isAdmin() || isOfficial();
+      allow update: if isAdmin() || isOfficial() || isOwner(resource.data);
       
       // Only the creator and admin can delete reports
-      allow delete: if isOwner(resource.data) || isAdmin();
+      allow delete: if isAdmin() || isOwner(resource.data);
     }
 
     match /users/{userId} {
