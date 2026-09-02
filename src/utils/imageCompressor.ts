@@ -23,75 +23,87 @@ export function compressImage(
   const originalSize = file.size;
 
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
+    // Use createObjectURL instead of FileReader for better performance
+    // with large camera photos (avoids creating huge base64 intermediate)
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
 
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result as string;
+    // IMPORTANT: Set onload/onerror BEFORE setting src
+    // to avoid race condition where load fires synchronously
+    img.onload = () => {
+      // Revoke the object URL to free memory
+      URL.revokeObjectURL(objectUrl);
 
-      img.onload = () => {
-        let { width, height } = img;
+      let { width, height } = img;
 
-        // Calculate new dimensions keeping aspect ratio
-        if (width > maxWidth || height > maxHeight) {
-          if (width / height > maxWidth / maxHeight) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
+      // Calculate new dimensions keeping aspect ratio
+      if (width > maxWidth || height > maxHeight) {
+        if (width / height > maxWidth / maxHeight) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        } else {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
         }
+      }
 
-        // Render onto HTML5 canvas with high quality smoothing
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
+      // Render onto HTML5 canvas with high quality smoothing
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
 
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          const rawBase64 = event.target?.result as string;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        // Fallback: read as data URL directly
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const rawBase64 = e.target?.result as string;
           resolve({
             base64: rawBase64,
             originalSize,
             compressedSize: rawBase64.length,
           });
-          return;
+        };
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convert to WebP or JPEG
+      try {
+        let compressedBase64 = canvas.toDataURL(format, quality);
+        // If WebP is not supported or larger than expected, fallback to JPEG
+        if (!compressedBase64.startsWith("data:image/webp")) {
+          compressedBase64 = canvas.toDataURL("image/jpeg", quality);
         }
-
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Convert to WebP or JPEG
-        try {
-          let compressedBase64 = canvas.toDataURL(format, quality);
-          // If WebP is not supported or larger than expected, fallback to JPEG
-          if (!compressedBase64.startsWith("data:image/webp")) {
-            compressedBase64 = canvas.toDataURL("image/jpeg", quality);
-          }
-          const compressedSize = Math.round((compressedBase64.length * 3) / 4);
-          resolve({
-            base64: compressedBase64,
-            originalSize,
-            compressedSize,
-          });
-        } catch {
-          const fallbackBase64 = canvas.toDataURL("image/jpeg", quality);
-          const compressedSize = Math.round((fallbackBase64.length * 3) / 4);
-          resolve({
-            base64: fallbackBase64,
-            originalSize,
-            compressedSize,
-          });
-        }
-      };
-
-      img.onerror = (err) => reject(err);
+        const compressedSize = Math.round((compressedBase64.length * 3) / 4);
+        resolve({
+          base64: compressedBase64,
+          originalSize,
+          compressedSize,
+        });
+      } catch {
+        const fallbackBase64 = canvas.toDataURL("image/jpeg", quality);
+        const compressedSize = Math.round((fallbackBase64.length * 3) / 4);
+        resolve({
+          base64: fallbackBase64,
+          originalSize,
+          compressedSize,
+        });
+      }
     };
 
-    reader.onerror = (err) => reject(err);
+    img.onerror = (err) => {
+      URL.revokeObjectURL(objectUrl);
+      reject(err);
+    };
+
+    // Set src AFTER handlers are attached
+    img.src = objectUrl;
   });
 }
 
