@@ -25,6 +25,7 @@ import { CheckCircle2, AlertTriangle, Home, MapPin, Camera, ClipboardList, PawPr
 import { CuteDogIcon, CuteCatIcon, CutePawIcon } from "@/components/ui/AnimalIcons";
 import { useAuth } from "@/contexts/AuthContext";
 import { compressImage, formatBytes } from "@/utils/imageCompressor";
+import { toast } from "sonner";
 
 interface ReportFormProps {
   onSuccess?: () => void;
