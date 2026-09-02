@@ -47,7 +47,8 @@ export default function ReportDetail({
   if (!report) return null;
 
   const handleDelete = async () => {
-    if (!report || !user || user.uid !== report.reporterId) return;
+    const isAllowed = user && (user.uid === report.reporterId || userProfile?.role === "admin");
+    if (!report || !isAllowed) return;
     
     if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้? (ลบแล้วไม่สามารถกู้คืนได้)")) {
       setUpdating(true);
