@@ -59,6 +59,9 @@ service cloud.firestore {
         isAdmin() || 
         (request.auth.uid == userId && request.resource.data.get('role', 'user') == resource.data.get('role', 'user'))
       );
+
+      // Admins can delete user profiles
+      allow delete: if isAdmin();
     }
   }
 }
